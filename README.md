@@ -5,14 +5,40 @@ This is the GitHub repository for the second assignment of the Software Architec
 ## Table of contents
 
 > - [Student info](#student-info)
-> - [Important files](#important-files)
+> - [Important files and folders](#important-files-and-folders)
+> - [Notes on the code](#notes-on-the-code)
+> - [Running the code](#running-the-code)
+> - [Validated output](#validated-output)
 
 ## Student info
-> - **Name**: Bontinck Lennert
-> - **StudentID**: 568702
-> - **Affiliation**: VUB - Master Computer Science: AI
+- **Name**: Bontinck Lennert
+- **Email**: lennert.bontinck@vub.be
+- **StudentID**: 568702
+- **Affiliation**: VUB - Master Computer Science: AI
 
-## Important files
-> - [Self-contained PDF file (coming soon)](Bontinck_Lennert_568702_VUB_SA2.pdf)
-> - [Written code](code/)
-> - [Assignment PDF](assignment02.pdf)
+## Important files and folders
+- [Assignment PDF](assignment.pdf)
+- [Report containing explanation on solution of the assignment](Lennert-Bontinck-SA2.pdf)
+- [Written code folder](code/)
+
+## Notes on the code
+
+- The code has been developed on MacOS Big Sur by using the IntelliJ IDEA 2021.1.3 Ultimate Edition and the "Scala" plugin by JetBrains.
+   - It was validated to work on a Windows 10 machine as well using the same software.
+- For this project the following version of base software are used (same as WPOs)
+   - JRE and JDK 1.8.291
+   - sbt 1.3.13
+- The sbt build wil provide the following:
+   - XXX
+
+## Running the code
+
+- Open the ```build.sbt``` file available under ```code\Lennert-Bontinck-SA2\build.sbt``` with the the IntelliJ IDEA.
+- Select ```Open as Project``` and select ```Trust Project```.
+- The IntelliJ IDEA should build the ```build.sbt``` file providing the dependencies. If all base software was installed with the same versions as used for this assignment, it should provide the correct SDKs as well.
+- In the ```Project``` pane navigate to ```src\main\scala\Lennert_Bontinck_SA2``` and:
+   - Rightclick on ```XXX``` and choose ```Run 'XXX'``` to start the application which XXX.
+
+## Validated output
+
+XXX
