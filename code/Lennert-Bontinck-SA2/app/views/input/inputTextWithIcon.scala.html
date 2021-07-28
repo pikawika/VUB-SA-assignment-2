@@ -1,0 +1,10 @@
+@(elements: helper.FieldElements)
+
+<div class="wrap-input100 @if(elements.hasErrors) {error}">
+    @elements.input
+    <span class="focus-input100"></span>
+    <span class="symbol-input100">
+        <i aria-hidden="true" class="fa @elements.label"></i>
+    </span>
+</div>
+<span class="errors">@elements.errors.mkString(", ")</span>

@@ -27,7 +27,7 @@ class UserController @Inject()(
     private val formSubmitUrl = routes.UserController.processLoginAttempt
 
     def showLoginForm = Action { implicit request: MessagesRequest[AnyContent] =>
-        Ok(views.html.userLogin(form, formSubmitUrl))
+        Ok(views.html.login("Login", form, formSubmitUrl))
     }
 
     def processLoginAttempt = Action { implicit request: MessagesRequest[AnyContent] =>

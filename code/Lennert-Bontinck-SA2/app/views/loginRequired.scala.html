@@ -1,0 +1,11 @@
+@(title: String)(implicit session: Session)
+
+@main(title, session) {
+  @defining(play.core.PlayVersion.current) { version =>
+
+    <div id="content" class="wrapper doc">
+        <h1>The CarLovers website is for registered users only</h1>
+        <h2>Login to your account or register for free</h2>
+    </div>
+  }
+}
