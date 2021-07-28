@@ -36,7 +36,7 @@ This is the GitHub repository for the second assignment of the Software Architec
 - Open the ```build.sbt``` file available under ```code\Lennert-Bontinck-SA2\build.sbt``` with the the IntelliJ IDEA.
 - Select ```Open as Project``` and select ```Trust Project```.
 - The IntelliJ IDEA should build the ```build.sbt``` file providing the dependencies. If all base software was installed with the same versions as used for this assignment, it should provide the correct SDKs as well.
-- By default, the Scala Play compiler is disabled in the IntelliJ IDEA, enable it via Settings -> Languages & Frameworks -> Play2 -> "Use Play2 compiler for this project".
+- By default, the Scala Play compiler is disabled in the IntelliJ IDEA, enable it via the IDEA settings: ```Languages & Frameworks``` -> ```Play2``` -> ```Use Play2 compiler for this project```. Press ```apply``` followed by ```ok```
 - Rebuilt the project.
 - Using the terminal inside the IntelliJ IDEA , execute ```sbt run```.
 - Using your internet browser, navigate to [localhost:9000](http://localhost:9000/).
