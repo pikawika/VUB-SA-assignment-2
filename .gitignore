@@ -1,3 +1,7 @@
 .idea/
-target/
 .DS_Store
+code/Lennert-Bontinck-SA2/target
+code/Lennert-Bontinck-SA2/.g8
+code/Lennert-Bontinck-SA2/logs
+code/Lennert-Bontinck-SA2/project/project
+code/Lennert-Bontinck-SA2/project/target

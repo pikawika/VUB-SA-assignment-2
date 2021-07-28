@@ -1,0 +1,11 @@
+@()(implicit session: Session)@* (implicit flash: Flash)*@
+
+@main("Welcome to Play", session) {
+    <div class="wrapper fadeInUp">
+
+    <h1>Welcome! You are logged in.</h1>
+
+    @* show the flash message (Option 1) *@
+    @* @flash.get("info").getOrElse("") *@
+    </div>
+}
