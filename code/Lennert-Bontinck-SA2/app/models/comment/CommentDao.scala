@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 /**
  * Simple Data Access Object (DAO) implementing a naive comment repository.
- * No database is used as posts are just saved in memory (per requirement of assignment).
+ * No database is used as comments are just saved in memory (per requirement of assignment).
  */
 @javax.inject.Singleton
 class CommentDao @Inject()() {

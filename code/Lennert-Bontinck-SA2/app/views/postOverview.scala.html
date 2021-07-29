@@ -4,8 +4,9 @@
 @main(title, session) {
     @defining(play.core.PlayVersion.current) { version =>
         <div>
+            <p> Sort on Date/Likes (TODO)</p>
             @for(postWithInfo <- postsWithInfo) {
-                @listItems.postListItem(postWithInfo)
+                @listItems.postListItem(postWithInfo, session)
             }
         </div>
     }

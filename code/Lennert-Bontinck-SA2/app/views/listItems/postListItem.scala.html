@@ -2,7 +2,7 @@
 * This template provides a simple post HTML for the overview list on the home page.
 *@
 @import models.post.PostWithInfo
-@(postWithInfo: PostWithInfo)
+@(postWithInfo: PostWithInfo, session: Session)
 
 <div class="row post-list-item">
     <div class="col-md-3">
@@ -17,8 +17,7 @@
         <img alt="Post foto" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
     </div>
     <div class="col-md-3">
-        <a class="post-list-item-like" title="Like">
-            <i class="far fa-heart"></i> XXX people like this. </a>
+        @forms.postLikeButtonAndCount(postWithInfo, session)
 
         <div class="post-list-item-comments pb-20">
         @for(comment <- postWithInfo.comments) {

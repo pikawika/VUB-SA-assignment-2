@@ -3,7 +3,7 @@ package models.comment
 import java.util.Date
 
 /**
- * Simple case class to represent a user post that has a ID, author username, description and image filename.
+ * Simple case class to represent a comment.
  */
 case class Comment(post_id: Int,
                    author: String,

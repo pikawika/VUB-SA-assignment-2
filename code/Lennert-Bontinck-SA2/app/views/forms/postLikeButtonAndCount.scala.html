@@ -1,0 +1,16 @@
+@*
+* This template provides a simple like button and amount HTML for a PostWithInfo item
+*@
+@import models.post.PostWithInfo
+@(postWithInfo: PostWithInfo, session: Session)
+
+
+<a class="post-list-item-like" title="Like">
+    @if(session.get(models.Global.SESSION_USERNAME_KEY).isDefined &&
+            !postWithInfo.likes.exists(_.liker == session.get(models.Global.SESSION_USERNAME_KEY).get)) {
+        <i class="far fa-heart"></i> @postWithInfo.likes.length people like this. </a>
+    } else {
+        <i class="fa fa-heart liked"></i> You and @(postWithInfo.likes.length - 1) other(s) like this. </a>
+    }
+
+

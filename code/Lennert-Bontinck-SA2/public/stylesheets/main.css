@@ -386,3 +386,7 @@ button:hover {
     border-radius: 10px;
     padding: 5px 15px;
 }
+
+.liked {
+    color: var(--car_pink);
+}

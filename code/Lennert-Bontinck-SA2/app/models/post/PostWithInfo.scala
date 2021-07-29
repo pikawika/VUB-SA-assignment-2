@@ -1,11 +1,13 @@
 package models.post
 
 import models.comment.Comment
+import models.like.Like
 
 
 /**
  * Simple case class to represent a post with it's info (comments and likes).
  */
 case class PostWithInfo(post: Post,
-                        comments: List[Comment])
+                        comments: List[Comment],
+                        likes: List[Like])
 
