@@ -1,19 +1,20 @@
-# Index routing, depending on user logged in or not different page is shown
-GET         /                    controllers.HomeController.showIndex
+# Route for index and login required page
+GET         /                     controllers.HomeController.showIndex
+GET         /loginRequired        controllers.HomeController.showLoginRequired()
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
 
 # Same /login URL may be used as get and post HTTP method difference is detectable.
-GET         /login               controllers.UserController.showLogin
-POST        /login               controllers.UserController.processLoginAttempt
+GET         /login                controllers.UserController.showLogin
+POST        /login                controllers.UserController.processLoginAttempt
 
 # Same /register URL may be used as get and post HTTP method difference is detectable.
-GET         /register               controllers.UserController.showRegister
-POST        /register               controllers.UserController.processRegisterAttempt
+GET         /register             controllers.UserController.showRegister
+POST        /register             controllers.UserController.processRegisterAttempt
 
 # Page for loging out the user.
-GET         /logout              controllers.AuthenticatedUserController.logout
+GET         /logout               controllers.AuthenticatedUserController.logout
 
 # show contacts (TODO: can be deleted but serves as template of protected page)
-GET         /contacts            controllers.ContactPageController.listContacts
+GET         /contacts             controllers.ContactPageController.listContacts

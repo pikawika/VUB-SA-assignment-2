@@ -12,10 +12,10 @@ class UserDao @Inject()() {
 
     /**
      * Keep users in memory.
-     * NOTE: this is very naive and passwords are not encrypted.
+     * NOTE: this is very naive and passwords are not encrypted but as required of assignment.
      */
     private var users = Set(
-        User("user", "user"),
+        User("Lennert", "AmazingPassword"),
         User("SnellenEddy", "AmazingPassword"),
         User("JohnyBravo", "AmazingPassword")
     )
@@ -32,18 +32,7 @@ class UserDao @Inject()() {
      * TODO
      */
     def uniqueUsername(username: String): Boolean = {
-        var unique = true
-
-        breakable {
-            for (user <- users) {
-                if(user.username.toLowerCase() == username.toLowerCase()) {
-                    unique = false
-                    break
-                }
-            }
-        }
-
-        unique
+        users.filter(_.username == username).isEmpty
     }
 
     /**
