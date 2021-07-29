@@ -1,6 +1,6 @@
 package controllers
 
-import models.PostDao
+import models.post.{PostDao, PostWithInfoDao}
 
 import javax.inject._
 import play.api.mvc._
@@ -12,14 +12,14 @@ import play.api.mvc._
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
-                               postDao: PostDao) extends AbstractController(cc) {
+                               postWithInfoDao: PostWithInfoDao) extends AbstractController(cc) {
 
   /**
    * Create an Action to render the index HTML page.
    * Only accessible to logged in users.
    */
   def showIndex = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    val posts = postDao.findAll
+    val posts = postWithInfoDao.findAllWithFewComments
     Ok(views.html.postOverview("Home", posts))
   }
 

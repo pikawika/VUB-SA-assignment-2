@@ -15,6 +15,3 @@ POST        /register             controllers.UserController.processRegisterAtte
 
 # Page for loging out the user.
 GET         /logout               controllers.AuthenticatedUserController.logout
-
-# show contacts (TODO: can be deleted but serves as template of protected page)
-GET         /contacts             controllers.ContactPageController.listContacts

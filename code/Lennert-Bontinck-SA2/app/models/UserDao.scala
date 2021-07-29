@@ -28,11 +28,10 @@ class UserDao @Inject()() {
     }
 
     /**
-     * Returns true if specified username is a valid username for a new user.
-     * TODO
+     * Returns true if specified username is an unique username for a new user.
      */
     def uniqueUsername(username: String): Boolean = {
-        users.filter(_.username == username).isEmpty
+        !users.exists(_.username.toLowerCase() == username.toLowerCase())
     }
 
     /**

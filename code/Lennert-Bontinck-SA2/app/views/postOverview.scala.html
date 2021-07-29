@@ -1,13 +1,12 @@
-@(title: String, contacts: List[Post])(implicit session: Session)
+@import models.post.PostWithInfo
+@(title: String, postsWithInfo: List[PostWithInfo])(implicit session: Session)
 
-  @main(title, session) {
+@main(title, session) {
     @defining(play.core.PlayVersion.current) { version =>
-
-      <div id="content" class="wrapper doc">
-        <article>
-          <h1>temp</h1>
-
-        </article>
-      </div>
+        <div>
+            @for(postWithInfo <- postsWithInfo) {
+                @listItems.postListItem(postWithInfo)
+            }
+        </div>
     }
-  }
+}

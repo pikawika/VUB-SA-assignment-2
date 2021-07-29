@@ -2,21 +2,31 @@
 
 :root {
     --car_pink: #e8175d;
+    --car_dark_pink: #7f0d36;
+    --bg_grey: #f4f4f4;
+}
+
+body {
+    background-color: var(--bg_grey);
 }
 
 a:hover, a:hover * {
     color: var(--car_pink) !important;
-    transition: 0.3s all ease;
+    transition: 0.4s all ease;
     text-decoration: none !important;
 }
 
 a, a * {
-    transition: 0.3s all ease;
+    transition: 0.4s all ease;
     text-decoration: none !important;
 }
 
 .pb-20 {
     padding-bottom: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
 }
 
 /* ---------------------------- END GENERAL ---------------------------- */
@@ -65,15 +75,13 @@ input, textarea {
 
 textarea:focus:-ms-input-placeholder, textarea:focus::-moz-placeholder, textarea:focus:-moz-placeholder,
 textarea:focus::-webkit-input-placeholder, input:focus:-ms-input-placeholder, input:focus::-moz-placeholder,
-input:focus:-moz-placeholder, input:focus::-webkit-input-placeholder, textarea:focus, input:focus
-{
+input:focus:-moz-placeholder, input:focus::-webkit-input-placeholder, textarea:focus, input:focus {
     color: transparent !important;
 }
 
 textarea::-moz-placeholder, textarea:-ms-input-placeholder, textarea:-moz-placeholder,
 textarea::-webkit-input-placeholder, input:-ms-input-placeholder, input::-moz-placeholder,
-input:-moz-placeholder, input::-webkit-input-placeholder
-{
+input:-moz-placeholder, input::-webkit-input-placeholder {
     color: #999999 !important;
 }
 
@@ -313,3 +321,68 @@ button:hover {
 
 
 /* ---------------------------- END LOGIN/REGISTER PAGE ---------------------------- */
+
+/* ---------------------------- START POST LIST ITEM ---------------------------- */
+.post-list-item {
+    height: 100%;
+    background: #fff none repeat scroll 0 0;
+    padding: 50px 30px;
+    position: relative;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    transition: all 0.3s ease 0s;
+    margin-bottom: 50px;
+    border-radius: 10px;
+}
+
+.post-list-item:hover {
+    box-shadow: 0px 60px 60px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 100;
+    transform: translate(0, -10px);
+}
+
+.post-list-item-photo {
+    text-align: center;
+    margin: auto;
+}
+
+.post-list-item-photo img {
+    max-width: 100%;
+    max-height: 350px;
+}
+
+.post-list-item-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+}
+
+.post-list-item-like {
+    color: unset;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.post-list-item-like i {
+    font-size: 30px;
+}
+
+.post-read-more {
+    border: 1px solid var(--car_pink);
+    background-color: var(--car_pink);
+    color: white;
+    border-radius: 10px;
+    padding: 5px 15px;
+    font-size: 16px;
+}
+
+.post-read-more:hover {
+    border: 1px solid var(--car_pink);
+    background-color: white;
+    color: white;
+    border-radius: 10px;
+    padding: 5px 15px;
+}

@@ -1,0 +1,9 @@
+@*
+* This template provides a simple comment HTML for the overview list of comments
+*@
+@import models.comment.Comment
+@(comment: Comment)
+
+<div>
+    <p><b>@comment.author</b>: @comment.text</p>
+</div>
