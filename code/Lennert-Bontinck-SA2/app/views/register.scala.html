@@ -1,10 +1,9 @@
 @(welcome: String, form: Form[models.User], postUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
+
 @* Use custom input fields, thanks to: https://stackoverflow.com/a/24729338 *@
 @import inputs.inputTextWithIcon
 @import helper.FieldConstructor
-@implicitField = @{
-    FieldConstructor(inputTextWithIcon.f)
-}
+@implicitField = @{ FieldConstructor(inputTextWithIcon.f) }
 
 @main(welcome, session) {
     @defining(play.core.PlayVersion.current) { version =>
@@ -18,11 +17,11 @@
 
                     <div class="login100-form" id="user-login-form">
                         <span class="login100-form-title">
-                            Login on CarLovers.be
+                            Register on CarLovers.be
                         </span>
                         <div class="text-center pb-20">
-                            <a class="small-text" href="@routes.UserController.showRegister()">
-                                or register a free account
+                            <a class="small-text" href="@routes.UserController.showLogin()">
+                                or login to your existing account
                                 <i aria-hidden="true" class="fas fa-long-arrow-alt-right"></i>
                             </a>
                         </div>
@@ -48,7 +47,7 @@
                             }
                         }
 
-                        @helper.form(postUrl, Symbol("id") -> "user-login-form") {
+                        @helper.form(postUrl, Symbol("id") -> "user-register-form") {
                             @helper.CSRF.formField
                             @helper.inputText(
                                 form("username"),
@@ -66,8 +65,8 @@
                             )
 
                             <div class="container-login100-form-btn">
-                                <button class="login100-form-btn" type="submit" value="Login">
-                                    Login
+                                <button class="login100-form-btn" type="submit" value="Register">
+                                    Register
                                 </button>
                             </div>
                         </div>

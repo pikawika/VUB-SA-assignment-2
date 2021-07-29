@@ -1,21 +1,19 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# https://www.playframework.com/documentation/latest/ScalaRouting
-# ~~~~
-
-GET     /                                   controllers.HomeController.index
-
+# Index routing, depending on user logged in or not different page is shown
+GET         /                    controllers.HomeController.showIndex
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
 
-# user/admin stuff
-GET  /login               controllers.UserController.showLoginForm
-POST /doLogin             controllers.UserController.processLoginAttempt
+# Same /login URL may be used as get and post HTTP method difference is detectable.
+GET         /login               controllers.UserController.showLogin
+POST        /login               controllers.UserController.processLoginAttempt
 
-# pages for authenticated users
-GET  /logout              controllers.AuthenticatedUserController.logout
-GET  /landingPage               controllers.LandingPageController.showLandingPage
+# Same /register URL may be used as get and post HTTP method difference is detectable.
+GET         /register               controllers.UserController.showRegister
+POST        /register               controllers.UserController.processRegisterAttempt
 
-# show contacts
-GET     /contacts                                 controllers.ContactPageController.listContacts
+# Page for loging out the user.
+GET         /logout              controllers.AuthenticatedUserController.logout
+
+# show contacts (TODO: can be deleted but serves as template of protected page)
+GET         /contacts            controllers.ContactPageController.listContacts

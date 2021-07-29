@@ -30,7 +30,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="@routes.HomeController.index()">
+                        <a class="navbar-brand" href="@routes.HomeController.showIndex()">
                             <img src="@routes.Assets.versioned("images/logo.png")">
                         </a>
                     </div>
@@ -39,11 +39,11 @@
                     @if(session.get(models.Global.SESSION_USERNAME_KEY).isEmpty) {
                         <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="@routes.UserController.showLoginForm()">
-                                    <span class="glyphicon glyphicon-user"></span> Register (todo)</a>
+                                <a href="@routes.UserController.showRegister()">
+                                    <span class="glyphicon glyphicon-user"></span> Register</a>
                             </li>
                             <li>
-                                <a href="@routes.UserController.showLoginForm()">
+                                <a href="@routes.UserController.showLogin()">
                                     <span class="glyphicon glyphicon-log-in"></span> Login</a>
                             </li>
                         </ul>
