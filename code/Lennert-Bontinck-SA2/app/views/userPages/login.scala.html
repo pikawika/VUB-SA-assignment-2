@@ -1,4 +1,5 @@
-@(welcome: String, form: Form[models.User], postUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
+@import models.user.User
+@(welcome: String, form: Form[User], postUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
 @* Use custom input fields, thanks to: https://stackoverflow.com/a/24729338 *@
 @import inputs.inputTextWithIcon
 @import helper.FieldConstructor

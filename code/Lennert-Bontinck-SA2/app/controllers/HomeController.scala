@@ -20,7 +20,7 @@ class HomeController @Inject()(cc: ControllerComponents,
    */
   def showIndex = authenticatedUserAction { implicit request: Request[AnyContent] =>
     val posts = postWithInfoDao.findAllWithFewComments
-    Ok(views.html.postOverview("Home", posts))
+    Ok(views.html.posts.postOverview("Home", posts))
   }
 
   /**
@@ -30,7 +30,7 @@ class HomeController @Inject()(cc: ControllerComponents,
   def showLoginRequired() = Action { implicit request: Request[AnyContent] =>
 
     if (request.session.get(models.Global.SESSION_USERNAME_KEY).isEmpty) {
-      Ok(views.html.loginRequired("Content hidden"))
+      Ok(views.html.userPages.loginRequired("Content hidden"))
     } else {
       Redirect(routes.HomeController.showIndex())
     }

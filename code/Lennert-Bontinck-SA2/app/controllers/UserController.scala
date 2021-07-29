@@ -1,7 +1,9 @@
 package controllers
 
+import models.user.{User, UserDao}
+
 import javax.inject.Inject
-import models.{Global, User, UserDao}
+import models.Global
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc._
@@ -61,7 +63,7 @@ class UserController @Inject()(
    */
   def showLogin: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     if (request.session.get(models.Global.SESSION_USERNAME_KEY).isEmpty) {
-      Ok(views.html.login("Login", loginForm, loginFormSubmitUrl))
+      Ok(views.html.userPages.login("Login", loginForm, loginFormSubmitUrl))
     } else {
       Redirect(routes.HomeController.showIndex())
     }
@@ -73,7 +75,7 @@ class UserController @Inject()(
    */
   def showRegister: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     if (request.session.get(models.Global.SESSION_USERNAME_KEY).isEmpty) {
-      Ok(views.html.register("Register", registerForm, registerFormSubmitUrl))
+      Ok(views.html.userPages.register("Register", registerForm, registerFormSubmitUrl))
     } else {
       Redirect(routes.HomeController.showIndex())
     }
@@ -86,7 +88,7 @@ class UserController @Inject()(
   def processLoginAttempt: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     val errorFunction = { formWithErrors: Form[User] =>
       // Issues with form itself (validation and/or binding issues)
-      BadRequest(views.html.login("Login unsuccessful", formWithErrors, loginFormSubmitUrl))
+      BadRequest(views.html.userPages.login("Login unsuccessful", formWithErrors, loginFormSubmitUrl))
     }
     val successFunction = { user: User =>
       // Form validation and binding is correct, check if user exist.
@@ -115,7 +117,7 @@ class UserController @Inject()(
   def processRegisterAttempt: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     val errorFunction = { formWithErrors: Form[User] =>
       // Issues with form itself (validation and/or binding issues)
-      BadRequest(views.html.register("Registration failed", formWithErrors, registerFormSubmitUrl))
+      BadRequest(views.html.userPages.register("Registration failed", formWithErrors, registerFormSubmitUrl))
     }
     val successFunction = { user: User =>
       // Form validation and binding is correct, try to make user

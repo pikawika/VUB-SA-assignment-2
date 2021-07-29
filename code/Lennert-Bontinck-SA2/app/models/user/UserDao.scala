@@ -1,7 +1,6 @@
-package models
+package models.user
 
 import javax.inject.Inject
-import scala.util.control.Breaks.{break, breakable}
 
 /**
  * Simple Data Access Object (DAO) implementing a naive user repository.
