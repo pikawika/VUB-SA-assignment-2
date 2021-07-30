@@ -1,16 +1,20 @@
 @*
-* This template provides a simple post HTML for the overview list on the home page.
+* This template provides a simple single post list item HTML for a single post of an overview list.
+* Expects a PostWithInfo that should be displayed and session to have access to user cookies.
+* Should not be used as "standalone" page.
 *@
 @import models.post.PostWithInfo
+@import java.time.format.FormatStyle
+@import java.time.format.DateTimeFormatter
 @(postWithInfo: PostWithInfo, session: Session)
 
 <div class="row post-list-item">
     <div class="col-md-3">
         <h4>Post by @postWithInfo.post.author</h4>
         <p class="text-justify post-list-item-description">
-            @postWithInfo.post.description
+        @postWithInfo.post.description
         </p>
-        <small>Posted on: @postWithInfo.post.date_added.toString</small>
+        <small>Posted on: @postWithInfo.post.date_added.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))</small>
 
     </div>
     <div class="col-md-6 post-list-item-photo">

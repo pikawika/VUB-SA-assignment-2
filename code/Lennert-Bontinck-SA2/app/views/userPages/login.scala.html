@@ -1,6 +1,9 @@
+@*
+* This template provides the login page.
+* The first arguments specifies the web title to use, the second the login form and the last the postUrl of the login form.
+*@
 @import models.user.User
-@(welcome: String, form: Form[User], postUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
-@* Use custom input fields, thanks to: https://stackoverflow.com/a/24729338 *@
+@(welcome: String, loginForm: Form[User], loginFormPostUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
 @import inputs.inputTextWithIcon
 @import helper.FieldConstructor
 @implicitField = @{
@@ -40,26 +43,26 @@
                             }
                         }
 
-                        @* Global errors are not tied to any particular form field *@
-                        @if(form.hasGlobalErrors) {
-                            @form.globalErrors.map { error: FormError =>
+                        @* Global errors are not tied to any particular loginForm field *@
+                        @if(loginForm.hasGlobalErrors) {
+                            @loginForm.globalErrors.map { error: FormError =>
                                 <div class="alert alert-danger">
                                     @error.message
                                 </div>
                             }
                         }
 
-                        @helper.form(postUrl, Symbol("id") -> "user-login-form") {
+                        @helper.form(loginFormPostUrl, Symbol("id") -> "user-login-form") {
                             @helper.CSRF.formField
                             @helper.inputText(
-                                form("username"),
+                                loginForm("username"),
                                 Symbol("_label") -> "fa-user",
                                 Symbol("placeholder") -> "Username",
                                 Symbol("id") -> "username",
                                 Symbol("class") -> "input100"
                             )
                             @helper.inputPassword(
-                                form("password"),
+                                loginForm("password"),
                                 Symbol("_label") -> "fa-lock",
                                 Symbol("placeholder") -> "Password",
                                 Symbol("id") -> "Password",

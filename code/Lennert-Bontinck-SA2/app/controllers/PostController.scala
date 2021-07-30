@@ -1,7 +1,7 @@
 package controllers
 
 import models.like.{Like, LikeDao}
-import models.post.PostWithInfoDao
+import models.post.{PostDao, PostWithInfoDao}
 import play.api.mvc._
 
 import javax.inject.Inject
@@ -12,6 +12,7 @@ import javax.inject.Inject
  */
 class PostController @Inject()(cc: MessagesControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
+                               postDao: PostDao,
                                postWithInfoDao: PostWithInfoDao,
                                likeDao: LikeDao
                               ) extends MessagesAbstractController(cc) {
@@ -24,11 +25,16 @@ class PostController @Inject()(cc: MessagesControllerComponents,
    * Only accessible to logged in users.
    */
   def showPost(id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    // Get post object
-    val postWithInfo = postWithInfoDao.findWithId(id)
+    if(!postDao.isValidId(id)) {
+      // If ID is invalid go to home
+      Redirect(routes.HomeController.showIndex())
+    } else {
+      // Get post object
+      val postWithInfo = postWithInfoDao.findWithId(id)
 
-    // Display post object
-    Ok(views.html.posts.post("Post by " + postWithInfo.post.author, postWithInfo))
+      // Display post object
+      Ok(views.html.posts.post("Post by " + postWithInfo.post.author, postWithInfo))
+    }
   }
 
   //---------------------------------------------------------------------------

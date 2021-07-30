@@ -6,19 +6,18 @@ import javax.inject.Inject
 
 /**
  * Simple Data Access Object (DAO) implementing a naive like repository.
- * No database is used as likes are just saved in memory (per requirement of assignment).
+ * NOTE: no DB is used, per required of the assignment, this is very naive IRL (no hashing, GDPR restrictions,...).
  */
 @javax.inject.Singleton
 class LikeDao @Inject()() {
 
   /**
-   * Keep likes in memory.
-   * NOTE: this is very naive but required by assignment.
+   * Likes variable: the set of likes is kept in memory and has some initial data.
    */
   private var likes = Set(
-    Like(1, "Lennert"),
-    Like(1, "SnellenEddy"),
-    Like(2, "SnellenEddy")
+    Like(2, "Lennert"),
+    Like(2, "SnellenEddy"),
+    Like(1, "SnellenEddy")
   )
 
   /**
@@ -32,10 +31,10 @@ class LikeDao @Inject()() {
   def findForPost(post: Post): List[Like] = likes.filter(_.post_id == post.id).toList
 
   /**
-   * Returns true if user has liked post after performing toggle.
+   * Toggles passed like object: adds or removes it.
    */
   def toggleLike(like: Like): Unit = {
-    if(likes.contains(like)) {
+    if (likes.contains(like)) {
       likes = likes - like
     } else {
       likes = likes + like

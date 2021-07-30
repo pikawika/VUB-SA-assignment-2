@@ -1,10 +1,14 @@
+@*
+* This template provides the registration page.
+* The first arguments specifies the web title to use, the second the registration form and the last the postUrl of that form.
+*@
 @import models.user.User
-@(welcome: String, form: Form[User], postUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
-
-@* Use custom input fields, thanks to: https://stackoverflow.com/a/24729338 *@
+@(welcome: String, registerForm: Form[User], registerFormPostUrl: Call)(implicit session: Session, request: MessagesRequestHeader)
 @import inputs.inputTextWithIcon
 @import helper.FieldConstructor
-@implicitField = @{ FieldConstructor(inputTextWithIcon.f) }
+@implicitField = @{
+    FieldConstructor(inputTextWithIcon.f)
+}
 
 @main(welcome, session) {
     @defining(play.core.PlayVersion.current) { version =>
@@ -40,25 +44,25 @@
                         }
 
                         @* Global errors are not tied to any particular form field *@
-                        @if(form.hasGlobalErrors) {
-                            @form.globalErrors.map { error: FormError =>
+                        @if(registerForm.hasGlobalErrors) {
+                            @registerForm.globalErrors.map { error: FormError =>
                                 <div class="alert alert-danger">
                                     @error.message
                                 </div>
                             }
                         }
 
-                        @helper.form(postUrl, Symbol("id") -> "user-register-form") {
+                        @helper.form(registerFormPostUrl, Symbol("id") -> "user-register-form") {
                             @helper.CSRF.formField
                             @helper.inputText(
-                                form("username"),
+                                registerForm("username"),
                                 Symbol("_label") -> "fa-user",
                                 Symbol("placeholder") -> "Username",
                                 Symbol("id") -> "username",
                                 Symbol("class") -> "input100"
                             )
                             @helper.inputPassword(
-                                form("password"),
+                                registerForm("password"),
                                 Symbol("_label") -> "fa-lock",
                                 Symbol("placeholder") -> "Password",
                                 Symbol("id") -> "Password",

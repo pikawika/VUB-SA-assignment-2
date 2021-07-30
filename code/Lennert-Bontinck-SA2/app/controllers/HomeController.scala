@@ -22,7 +22,7 @@ class HomeController @Inject()(cc: ControllerComponents,
    * Only accessible to logged in users.
    */
   def showIndex(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    val posts = postWithInfoDao.findAllWithFewComments
+    val posts = postWithInfoDao.findAll(limit_comments = true)
     Ok(views.html.posts.postOverview("Home", posts))
   }
 

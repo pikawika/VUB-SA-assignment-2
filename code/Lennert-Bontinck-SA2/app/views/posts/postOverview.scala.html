@@ -1,3 +1,7 @@
+@*
+* This template provides a template for a page giving an overview of the posts.
+* The first arguments specifies the web title to use, the second is a list of PostWithInfo objects to display.
+*@
 @import models.post.PostWithInfo
 @(title: String, postsWithInfo: List[PostWithInfo])(implicit session: Session)
 

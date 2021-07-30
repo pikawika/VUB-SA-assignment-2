@@ -1,12 +1,12 @@
 package models.post
 
-import java.util.Date
+import java.time.LocalDateTime
 
 /**
- * Simple case class to represent a user post that has a ID, author username, description and image filename.
+ * Simple case class to represent a user post.
  */
 case class Post(id: Int,
                 author: String,
-                date_added: Date,
+                date_added: LocalDateTime,
                 description: String,
                 image_filename: String)

@@ -2,41 +2,36 @@ package models.comment
 
 import models.post.Post
 
+import java.time.LocalDateTime
 import java.util.Calendar
 import javax.inject.Inject
 
 /**
  * Simple Data Access Object (DAO) implementing a naive comment repository.
- * No database is used as comments are just saved in memory (per requirement of assignment).
+ * NOTE: no DB is used, per required of the assignment, this is very naive IRL (no hashing, GDPR restrictions,...).
  */
 @javax.inject.Singleton
 class CommentDao @Inject()() {
 
   /**
-   * Keep comments in memory.
-   * NOTE: this is very naive but required by assignment.
+   * Comment variable: the set of comments is kept in memory and has some initial data.
    */
   private var comments = Set(
-    Comment(1, "SnellenEddy", Calendar.getInstance().getTime, "Looks good man!"),
-    Comment(1, "Lennert", Calendar.getInstance().getTime, "Thanks SnellenEddy!"),
-    Comment(1, "SnellenEddy", Calendar.getInstance().getTime, "No worries man, I really wish I had one like it. Actually, I had one in the past but I crashed it. It was too fast, even for me, SnellenEddy!"),
-    Comment(1, "Lennert", Calendar.getInstance().getTime, "Haha, well, it's not for sale, at least not for the moment!")
+    Comment(2, "SnellenEddy", LocalDateTime.of(2021, 7, 21, 20, 30), "Looks good man!"),
+    Comment(2, "Lennert", LocalDateTime.of(2021, 7, 21, 20, 31), "Thanks SnellenEddy!"),
+    Comment(2, "SnellenEddy", LocalDateTime.of(2021, 7, 21, 20, 32), "No worries man, I really wish I had one like it. Actually, I had one in the past but I crashed it. It was too fast, even for me, SnellenEddy!"),
+    Comment(2, "Lennert", LocalDateTime.of(2021, 7, 21, 20, 33), "Haha, well, it's not for sale, at least not for the moment!")
   )
 
   /**
-   * Returns all comments of all posts.
+   * Returns all comments of all posts sorted by the date they were added (oldest first).
    */
-  def findAll: List[Comment] = comments.toList
+  def findAll: List[Comment] = comments.toList.sortBy(_.date_added)
 
   /**
-   * Returns all comments for a single post.
+   * Returns all comments for a single post sorted by the date they were added (oldest first).
    */
-  def findForPost(post: Post): List[Comment] = comments.filter(_.post_id == post.id).toList
-
-  /**
-   * Returns first three comments for a single post.
-   */
-  def findFewForPost(post: Post): List[Comment] = comments.filter(_.post_id == post.id).toList.take(3)
+  def findForPost(post: Post): List[Comment] = comments.filter(_.post_id == post.id).toList.sortBy(_.date_added)
 
 }
 

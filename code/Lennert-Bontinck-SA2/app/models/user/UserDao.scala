@@ -4,14 +4,14 @@ import javax.inject.Inject
 
 /**
  * Simple Data Access Object (DAO) implementing a naive user repository.
- * No database is used as users are just saved in memory (per requirement of assignment).
+ * NOTE: no DB is used, per required of the assignment, this is very naive IRL (no hashing, GDPR restrictions,...).
  */
 @javax.inject.Singleton
 class UserDao @Inject()() {
 
     /**
-     * Keep users in memory.
-     * NOTE: this is very naive and passwords are not encrypted but as required of assignment.
+     * Users variable: the set of users is kept in memory and has some initial data.
+     * Username can be used as unique identifier.
      */
     private var users = Set(
         User("Lennert", "AmazingPassword"),
