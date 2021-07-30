@@ -7,13 +7,16 @@ import play.api.mvc._
 
 /**
  * This controller is responsible for handling HTTP requests
- * to the application's main content pages through its actions.
+ * to the application's "home page" through its actions.
  */
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
                                postWithInfoDao: PostWithInfoDao) extends AbstractController(cc) {
 
+  //---------------------------------------------------------------------------
+  //| START INDEX RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
   /**
    * Create an Action to render the index HTML page.
    * Only accessible to logged in users.
@@ -22,6 +25,12 @@ class HomeController @Inject()(cc: ControllerComponents,
     val posts = postWithInfoDao.findAllWithFewComments
     Ok(views.html.posts.postOverview("Home", posts))
   }
+
+  //---------------------------------------------------------------------------
+  //| END INDEX RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START LOGIN REQUIRED RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
 
   /**
    * Create an Action to render the login required HTML page.
@@ -34,4 +43,8 @@ class HomeController @Inject()(cc: ControllerComponents,
       Redirect(routes.HomeController.showIndex())
     }
   }
+
+  //---------------------------------------------------------------------------
+  //| END LOGIN REQUIRED RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
 }

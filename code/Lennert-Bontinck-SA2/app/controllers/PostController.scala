@@ -16,35 +16,65 @@ class PostController @Inject()(cc: MessagesControllerComponents,
                                likeDao: LikeDao
                               ) extends MessagesAbstractController(cc) {
 
+  //---------------------------------------------------------------------------
+  //| START SHOW POST PAGE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
   /**
-   * Function to process a like attempt, if credentials are correct the like is performed and user if forwarded to post.
-   * Otherwise the user is forwarded to index since the form is likely tempered with.
-   */
-  def processLikeAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    val logged_in = request.session.get(models.Global.SESSION_USERNAME_KEY).isDefined
-
-    if (logged_in) {
-      val liker = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-      val like = Like(post_id, liker)
-
-      val user_has_liked = likeDao.toggleLike(like)
-
-      Redirect(routes.PostController.showPost(post_id))
-    } else {
-      Redirect(routes.HomeController.showIndex())
-    }
-
-  }
-
-
-  /**
-   * Create an Action to render the index HTML page.
+   * Create an Action to render the post page for a specific post ID.
    * Only accessible to logged in users.
    */
   def showPost(id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+    // Get post object
     val postWithInfo = postWithInfoDao.findWithId(id)
+
+    // Display post object
     Ok(views.html.posts.post("Post by " + postWithInfo.post.author, postWithInfo))
   }
+
+  //---------------------------------------------------------------------------
+  //| END SHOW POST PAGE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START LIKE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+  /**
+   * Function to process a like attempt, forwards user to post which (s)he liked.
+   */
+  def processLikeAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+    // Get username from cookie and create like object
+    val liker = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+    val like = Like(post_id, liker)
+
+    // Toggle like
+    likeDao.toggleLike(like)
+
+    // Goto post page
+    Redirect(routes.PostController.showPost(post_id))
+
+  }
+
+
+  //---------------------------------------------------------------------------
+  //| END LIKE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START COMMENT RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+  /**
+   * Function to process a comment attempt, forwards user to post on which (s)he commented.
+   */
+  def processCommentAttempt(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+    //todo
+    Redirect(routes.HomeController.showIndex())
+  }
+
+
+  //---------------------------------------------------------------------------
+  //| END COMMENT RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+
+
 
 
 }

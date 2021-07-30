@@ -7,27 +7,24 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
-  * Cobbled this together from:
-  * https://www.playframework.com/documentation/2.6.x/ScalaActionsComposition#Authentication
-  * https://www.playframework.com/documentation/2.6.x/api/scala/index.html#play.api.mvc.Results@values
-  * `Forbidden`, `Ok`, and others are a type of `Result`.
-  */
-class AuthenticatedUserAction @Inject() (parser: BodyParsers.Default)(implicit ec: ExecutionContext)
-    extends ActionBuilderImpl(parser) {
+ * NOTE: This file is taken from the solutions of WPO session 7.
+ * The only noteworthy modification is a forward to showLoginRequired instead of index.
+ */
+class AuthenticatedUserAction @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
+  extends ActionBuilderImpl(parser) {
 
-    private val logger = play.api.Logger(this.getClass)
+  private val logger = play.api.Logger(this.getClass)
 
-    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
-        logger.info("ENTERED AuthenticatedUserAction::invokeBlock ...")
-        val maybeUsername = request.session.get(models.Global.SESSION_USERNAME_KEY)
-        maybeUsername match {
-            case None => {
-                Future.successful(Redirect(routes.HomeController.showLoginRequired() ))
-            }
-            case Some(u) => {
-                val res: Future[Result] = block(request)
-                res
-            }
-        }
+  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
+    logger.info("ENTERED AuthenticatedUserAction::invokeBlock ...")
+    val maybeUsername = request.session.get(models.Global.SESSION_USERNAME_KEY)
+    maybeUsername match {
+      case None =>
+        // If user is not logged in show login required page.
+        Future.successful(Redirect(routes.HomeController.showLoginRequired()))
+      case Some(_) =>
+        val res: Future[Result] = block(request)
+        res
     }
+  }
 }

@@ -19,3 +19,4 @@ GET         /logout               controllers.AuthenticatedUserController.logout
 # Post related pages and pages for interaction
 GET         /post/:id             controllers.PostController.showPost(id: Int)
 GET         /like/:id             controllers.PostController.processLikeAttempt(id: Int)
+POST        /comment              controllers.PostController.processCommentAttempt()

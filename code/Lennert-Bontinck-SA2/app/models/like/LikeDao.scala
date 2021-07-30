@@ -2,7 +2,6 @@ package models.like
 
 import models.post.Post
 
-import java.util.Calendar
 import javax.inject.Inject
 
 /**
@@ -35,13 +34,11 @@ class LikeDao @Inject()() {
   /**
    * Returns true if user has liked post after performing toggle.
    */
-  def toggleLike(like: Like) : Boolean = {
+  def toggleLike(like: Like): Unit = {
     if(likes.contains(like)) {
       likes = likes - like
-      false
     } else {
       likes = likes + like
-      true
     }
   }
 

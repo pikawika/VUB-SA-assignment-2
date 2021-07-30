@@ -11,14 +11,17 @@ import play.api.mvc._
 /**
  * This controller is responsible for handling HTTP requests
  * to the application's user related pages through its actions.
+ * NOTE: The login portion of this file is heavily inspired on the solutions of WPO session 7.
  */
 class UserController @Inject()(
                                 cc: MessagesControllerComponents,
                                 userDao: UserDao
                               ) extends MessagesAbstractController(cc) {
 
-  //private val logger = play.api.Logger(this.getClass)
 
+  //---------------------------------------------------------------------------
+  //| START LOGIN RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
   /**
    * The user login form and it's verification.
    * Only checks for non-empty text.
@@ -30,32 +33,12 @@ class UserController @Inject()(
     )(User.apply)(User.unapply)
   )
 
-  /**
-   * The user register form and it's verification.
-   * Checks if username and password are of correct length.
-   * Checks if password is complicated enough.
-   */
-  val registerForm: Form[User] = Form(
-    mapping(
-      "username" -> nonEmptyText
-        .verifying("Username must be between 3 and 15 characters.", username => correctUsernameLength(username))
-        .verifying("Username can only contain letters and numbers", username => lettersAndNumbersOnly(username))
-        .verifying("Username already taken.", username => userDao.uniqueUsername(username)),
-      "password" -> nonEmptyText
-        .verifying("Password must be between 5 and 20 characters.", password => correctPasswordLength(password))
-        .verifying("Password can only contain letters and numbers", username => lettersAndNumbersOnly(username)),
-    )(User.apply)(User.unapply)
-  )
 
   /**
    * The submit URL of the user login form.
    */
   private val loginFormSubmitUrl = routes.UserController.processLoginAttempt()
 
-  /**
-   * The submit URL of the user register form.
-   */
-  private val registerFormSubmitUrl = routes.UserController.processRegisterAttempt()
 
   /**
    * Create an Action to render the login HTML page.
@@ -70,19 +53,7 @@ class UserController @Inject()(
   }
 
   /**
-   * Create an Action to render the register HTML page.
-   * If the user is already logged in he's forwarded to index.
-   */
-  def showRegister: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
-    if (request.session.get(models.Global.SESSION_USERNAME_KEY).isEmpty) {
-      Ok(views.html.userPages.register("Register", registerForm, registerFormSubmitUrl))
-    } else {
-      Redirect(routes.HomeController.showIndex())
-    }
-  }
-
-  /**
-   * Function to process a login attempt, if credentials are correct the user is forwarded to index
+   * Function to process a login attempt, if login succeeded the user is forwarded to index
    * otherwise the login page is shown again.
    */
   def processLoginAttempt: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
@@ -110,8 +81,48 @@ class UserController @Inject()(
     )
   }
 
+  //---------------------------------------------------------------------------
+  //| END LOGIN RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START REGISTER RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
   /**
-   * Function to process a register attempt, if user creation is possible the user is forwarded to index
+   * The user register form and it's verification.
+   * Checks if username and password are of correct length and format.
+   * Checks if username is not already taken.
+   */
+  val registerForm: Form[User] = Form(
+    mapping(
+      "username" -> nonEmptyText
+        .verifying("Username must be between 3 and 15 characters.", username => lengthBetween(username, 3, 15))
+        .verifying("Username can only contain letters and numbers", username => lettersAndNumbersOnly(username))
+        .verifying("Username already taken.", username => userDao.uniqueUsername(username)),
+      "password" -> nonEmptyText
+        .verifying("Password must be between 5 and 20 characters.", password => lengthBetween(password, 5, 20))
+        .verifying("Password can only contain letters and numbers", username => lettersAndNumbersOnly(username)),
+    )(User.apply)(User.unapply)
+  )
+
+  /**
+   * The submit URL of the user register form.
+   */
+  private val registerFormSubmitUrl = routes.UserController.processRegisterAttempt()
+
+  /**
+   * Create an Action to render the register HTML page.
+   * If the user is already logged in he's forwarded to index.
+   */
+  def showRegister: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
+    if (request.session.get(models.Global.SESSION_USERNAME_KEY).isEmpty) {
+      Ok(views.html.userPages.register("Register", registerForm, registerFormSubmitUrl))
+    } else {
+      Redirect(routes.HomeController.showIndex())
+    }
+  }
+
+  /**
+   * Function to process a register attempt, if registration succeeded the user is forwarded to index
    * otherwise the register page is shown again.
    */
   def processRegisterAttempt: Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
@@ -139,16 +150,27 @@ class UserController @Inject()(
     )
   }
 
-  private def correctUsernameLength(username: String): Boolean = {
-    username.length >= 3 && username.length <= 15
+  //---------------------------------------------------------------------------
+  //| END REGISTER RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START VALIDATION RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+  /**
+   * Function to validate if the length of a string is between a min and max value.
+   */
+  private def lengthBetween(username: String, min: Int, max: Int): Boolean = {
+    username.length >= min && username.length <= max
   }
 
+  /**
+   * Function to validate use of letters and numbers only in a string.
+   */
   private def lettersAndNumbersOnly(string: String): Boolean = {
     string.matches("[a-zA-Z0-9]*")
   }
 
-  private def correctPasswordLength(password: String): Boolean = {
-    password.length >= 5 && password.length <= 20
-  }
-
+  //---------------------------------------------------------------------------
+  //| END VALIDATION RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
 }
