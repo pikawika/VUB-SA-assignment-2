@@ -19,7 +19,7 @@ class CommentDao @Inject()() {
   private var comments = Set(
     Comment(1, "SnellenEddy", Calendar.getInstance().getTime, "Looks good man!"),
     Comment(1, "Lennert", Calendar.getInstance().getTime, "Thanks SnellenEddy!"),
-    Comment(1, "SnellenEddy", Calendar.getInstance().getTime, "No worries man, I really wish I had one like it."),
+    Comment(1, "SnellenEddy", Calendar.getInstance().getTime, "No worries man, I really wish I had one like it. Actually, I had one in the past but I crashed it. It was too fast, even for me, SnellenEddy!"),
     Comment(1, "Lennert", Calendar.getInstance().getTime, "Haha, well, it's not for sale, at least not for the moment!")
   )
 

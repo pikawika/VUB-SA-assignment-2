@@ -14,21 +14,23 @@
 
     </div>
     <div class="col-md-6 post-list-item-photo">
-        <img alt="Post foto" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
+        <a title="Read more" href="@routes.PostController.showPost(postWithInfo.post.id)">
+            <img alt="Post photo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
+        </a>
     </div>
     <div class="col-md-3">
-        @forms.postLikeButtonAndCount(postWithInfo, session)
-
         <div class="post-list-item-comments pb-20">
         @for(comment <- postWithInfo.comments) {
             @listItems.commentListItem(comment)
         }
         </div>
 
-        <a class="post-read-more" href="@routes.UserController.showRegister()">
+        <a class="post-read-more" href="@routes.PostController.showPost(postWithInfo.post.id)">
             Read more
             <i aria-hidden="true" class="fas fa-long-arrow-alt-right"></i>
         </a>
+
+        @forms.postLikeButtonAndCount(postWithInfo, session)
 
     </div>
 </div>

@@ -5,12 +5,12 @@
 @(postWithInfo: PostWithInfo, session: Session)
 
 
-<a class="post-list-item-like" title="Like">
+<a class="post-list-item-like" title="Like" href="@routes.PostController.processLikeAttempt(postWithInfo.post.id)">
     @if(session.get(models.Global.SESSION_USERNAME_KEY).isDefined &&
             !postWithInfo.likes.exists(_.liker == session.get(models.Global.SESSION_USERNAME_KEY).get)) {
-        <i class="far fa-heart"></i> @postWithInfo.likes.length car lover(s) liked this. </a>
+        <i class="far fa-heart push-right-icon"></i> @postWithInfo.likes.length CarLover(s) liked this. </a>
     } else {
-        <i class="fa fa-heart liked"></i> You and @(postWithInfo.likes.length - 1) other(s) liked this. </a>
+        <i class="fa fa-heart liked push-right-icon"></i> You and @(postWithInfo.likes.length - 1) other(s) liked this. </a>
     }
 
 

@@ -1,0 +1,49 @@
+@import models.post.PostWithInfo
+@(title: String, postWithInfo: PostWithInfo)(implicit session: Session)
+
+@main(title, session) {
+    @defining(play.core.PlayVersion.current) { version =>
+        <div class="single-post-page">
+            <div class="single-post-post">
+                <div class="row bb pb-20">
+                    <div class="col-md-9">
+                        <h1>Post by @postWithInfo.post.author</h1>
+                        <small>Posted on: @postWithInfo.post.date_added.toString</small>
+                    </div>
+                    <div class="col-md-3 bl-md">
+                    @forms.postLikeButtonAndCount(postWithInfo, session)
+                    </div>
+                </div>
+
+                <div class="single-post-image">
+                    <img alt="Post photo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
+                </div>
+
+                <div class="single-post-description">
+                    <p>@postWithInfo.post.description</p>
+                </div>
+
+            </div>
+
+            <div class="single-post-comments">
+                <div class="row bb pb-20 mb-20">
+                    <div class="col-md-9">
+                        <h2>Comments on this post</h2>
+                        <small>Share your thoughts!</small>
+                    </div>
+                    <div class="col-md-3 bl-md post-comment-meta">
+                    @posts.postCommentIconAndCount(postWithInfo, session)
+                    </div>
+                </div>
+
+                <div>
+                @for(comment <- postWithInfo.comments) {
+                    @listItems.commentListItem(comment)
+                }
+                </div>
+
+            </div>
+
+        </div>
+    }
+}

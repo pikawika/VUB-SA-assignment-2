@@ -24,6 +24,17 @@ class PostDao @Inject()() {
 
   def findAll: List[Post] = posts.toList
 
+  def findWithId(id: Int): Post = {
+    val results = posts.filter(_.id == id).toList
+
+    if(results.isEmpty) {
+      return results(0)
+    } else {
+      return results(0)
+    }
+
+  }
+
 }
 
 

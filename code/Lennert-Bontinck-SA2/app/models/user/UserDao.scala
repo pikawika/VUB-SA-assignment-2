@@ -44,7 +44,6 @@ class UserDao @Inject()() {
         } else {
             false
         }
-
     }
 
 }

@@ -1,0 +1,18 @@
+@*
+* This template provides a simple comment icon and amount HTML for a PostWithInfo item
+*@
+@import models.post.PostWithInfo
+@(postWithInfo: PostWithInfo, session: Session)
+
+
+
+@if(session.get(models.Global.SESSION_USERNAME_KEY).isDefined &&
+        !postWithInfo.comments.exists(_.author == session.get(models.Global.SESSION_USERNAME_KEY).get)) {
+    <i class="far fa-comment push-right-icon"></i>
+    @postWithInfo.comments.length CarLover(s) commented.
+} else {
+    <i class="fa fa-comment liked push-right-icon"></i>
+    You and @(postWithInfo.comments.length - 1) other(s) commented.
+}
+
+

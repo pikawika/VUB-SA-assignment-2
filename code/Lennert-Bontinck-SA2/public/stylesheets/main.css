@@ -4,6 +4,7 @@
     --car_pink: #e8175d;
     --car_dark_pink: #7f0d36;
     --bg_grey: #f4f4f4;
+    --ef_grey: #efefef;
 }
 
 body {
@@ -28,6 +29,11 @@ a, a * {
 .mb-20 {
     margin-bottom: 20px;
 }
+
+.mw-100 {
+    max-width: 100%;
+}
+
 
 /* ---------------------------- END GENERAL ---------------------------- */
 
@@ -345,11 +351,18 @@ button:hover {
 .post-list-item-photo {
     text-align: center;
     margin: auto;
+    overflow: hidden;
 }
 
 .post-list-item-photo img {
-    max-width: 100%;
-    max-height: 350px;
+    width: 100%;
+    overflow: hidden;
+    transition: 0.4s all ease;
+}
+
+.post-list-item-photo img:hover {
+    transform: scale(.95);
+    transition: 0.4s all ease;
 }
 
 .post-list-item-description {
@@ -360,14 +373,16 @@ button:hover {
     -webkit-box-orient: vertical;
 }
 
-.post-list-item-like {
+.post-list-item-like, .post-comment-meta {
     color: unset;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 10px;
 }
 
-.post-list-item-like i {
-    font-size: 30px;
+.post-list-item-like i, .post-comment-meta i {
+    font-size: 50px;
 }
 
 .post-read-more {
@@ -377,6 +392,9 @@ button:hover {
     border-radius: 10px;
     padding: 5px 15px;
     font-size: 16px;
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .post-read-more:hover {
@@ -389,4 +407,61 @@ button:hover {
 
 .liked {
     color: var(--car_pink);
+}
+
+.push-right-icon {
+    display: block;
+    text-align: center;
+    margin-bottom: 3px;
+}
+
+.post-list-item-comments .comment {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    height: 3em;
+}
+
+/* ---------------------------- END POST LIST ITEM ---------------------------- */
+
+/* ---------------------------- START SINGLE POST ---------------------------- */
+
+.single-post-post, .single-post-comments {
+    height: 100%;
+    background: #fff none repeat scroll 0 0;
+    padding: 50px 30px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
+    margin-bottom: 50px;
+    border-radius: 10px;
+}
+
+.single-post-post h1, .single-post-comments h2 {
+    margin-top: 0;
+}
+
+@media (min-width: 768px) {
+    .bl-md {
+        border-left: 2px solid var(--ef_grey);
+    }
+}
+
+.bb {
+    border-bottom: 2px solid var(--ef_grey);
+}
+
+.single-post-image img {
+    margin: 20px 0;
+    max-width: 100%;
+    max-height: 850px;
+}
+
+.single-post-image {
+    text-align: center;
+}
+
+.single-post-description {
+    font-size: 20px;
+    text-align: justify;
 }

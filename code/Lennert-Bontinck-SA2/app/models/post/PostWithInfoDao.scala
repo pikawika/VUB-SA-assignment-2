@@ -41,6 +41,15 @@ class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDa
     postsWithInfo.toList
   }
 
+  def findWithId(id: Int): PostWithInfo = {
+    val post = postDao.findWithId(id)
+    val comments = commentDao.findFewForPost(post)
+    val likes = likeDao.findForPost(post)
+
+    val postsWithInfo = PostWithInfo(post, comments, likes)
+
+    postsWithInfo
+  }
 }
 
 

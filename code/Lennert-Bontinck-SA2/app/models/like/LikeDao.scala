@@ -32,6 +32,19 @@ class LikeDao @Inject()() {
    */
   def findForPost(post: Post): List[Like] = likes.filter(_.post_id == post.id).toList
 
+  /**
+   * Returns true if user has liked post after performing toggle.
+   */
+  def toggleLike(like: Like) : Boolean = {
+    if(likes.contains(like)) {
+      likes = likes - like
+      false
+    } else {
+      likes = likes + like
+      true
+    }
+  }
+
 }
 
 
