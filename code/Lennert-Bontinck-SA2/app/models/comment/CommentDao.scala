@@ -3,7 +3,6 @@ package models.comment
 import models.post.Post
 
 import java.time.LocalDateTime
-import java.util.Calendar
 import javax.inject.Inject
 
 /**
@@ -32,6 +31,15 @@ class CommentDao @Inject()() {
    * Returns all comments for a single post sorted by the date they were added (oldest first).
    */
   def findForPost(post: Post): List[Comment] = comments.filter(_.post_id == post.id).toList.sortBy(_.date_added)
+
+
+
+  /**
+   * Adds comment to repository.
+   */
+  def addUser(comment: Comment): Unit = {
+    comments = comments + comment
+  }
 
 }
 

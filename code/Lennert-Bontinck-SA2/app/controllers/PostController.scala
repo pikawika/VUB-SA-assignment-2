@@ -1,9 +1,13 @@
 package controllers
 
+import models.comment.{Comment, CommentDao}
 import models.like.{Like, LikeDao}
 import models.post.{PostDao, PostWithInfoDao}
+import play.api.data.Form
+import play.api.data.Forms.{localDateTime, mapping, nonEmptyText, number}
 import play.api.mvc._
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 /**
@@ -13,6 +17,7 @@ import javax.inject.Inject
 class PostController @Inject()(cc: MessagesControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
                                postDao: PostDao,
+                               commentDao: CommentDao,
                                postWithInfoDao: PostWithInfoDao,
                                likeDao: LikeDao
                               ) extends MessagesAbstractController(cc) {
@@ -24,7 +29,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
    * Create an Action to render the post page for a specific post ID.
    * Only accessible to logged in users.
    */
-  def showPost(id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+  def showPost(id: Int): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     if(!postDao.isValidId(id)) {
       // If ID is invalid go to home
       Redirect(routes.HomeController.showIndex())
@@ -33,7 +38,9 @@ class PostController @Inject()(cc: MessagesControllerComponents,
       val postWithInfo = postWithInfoDao.findWithId(id)
 
       // Display post object
-      Ok(views.html.posts.post("Post by " + postWithInfo.post.author, postWithInfo))
+      val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+      val filledCommentForm = commentForm.fill(Comment(postWithInfo.post.id, username, LocalDateTime.now(), ""))
+      Ok(views.html.posts.post("Post by " + postWithInfo.post.author, postWithInfo, filledCommentForm, commentPostUrl))
     }
   }
 
@@ -67,11 +74,51 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //---------------------------------------------------------------------------
 
   /**
+   * The user register form and it's verification.
+   * Checks if username and password are of correct length and format.
+   * Checks if username is not already taken.
+   */
+  val commentForm: Form[Comment] = Form(
+    mapping(
+      "post_id" -> number,
+      "author" -> nonEmptyText,
+      "date_added" -> localDateTime,
+      "text" -> nonEmptyText,
+    )(Comment.apply)(Comment.unapply)
+  )
+
+  /**
+   * The submit URL of the user register form.
+   */
+  private val commentPostUrl = routes.PostController.processCommentAttempt()
+
+  /**
    * Function to process a comment attempt, forwards user to post on which (s)he commented.
    */
-  def processCommentAttempt(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    //todo
-    Redirect(routes.HomeController.showIndex())
+  def processCommentAttempt(): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
+    val errorFunction = { formWithErrors: Form[Comment] =>
+      // Issues with form itself (validation and/or binding issues)
+      // TODO: better error handling
+      Redirect(routes.HomeController.showIndex())
+    }
+    val successFunction = { comment: Comment =>
+      // Form validation and binding is correct, check correct user and existing post
+      val correct_user = request.session.get(models.Global.SESSION_USERNAME_KEY).get == comment.author
+      val correct_post = postDao.isValidId(comment.post_id)
+
+      if(correct_user && correct_post) {
+        commentDao.addUser(comment)
+        Redirect(routes.PostController.showPost(comment.post_id))
+      } else {
+        // Form has been most likely tempered with, reroute user to home
+        Redirect(routes.HomeController.showIndex())
+      }
+    }
+    val formValidationResult: Form[Comment] = commentForm.bindFromRequest
+    formValidationResult.fold(
+      errorFunction,
+      successFunction
+    )
   }
 
 
