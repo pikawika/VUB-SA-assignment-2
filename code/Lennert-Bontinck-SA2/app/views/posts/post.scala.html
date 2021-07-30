@@ -10,7 +10,7 @@
 @implicitField = @{
     FieldConstructor(inputTextWithIcon.f)
 }
-    
+
 @main(title, session) {
     @defining(play.core.PlayVersion.current) { version =>
         <div class="single-post-page">
@@ -46,63 +46,69 @@
                     </div>
                 </div>
 
-                <div>
-                @for(comment <- postWithInfo.comments) {
-                    @listItems.commentListItem(comment)
-                }
-                </div>
-
-                <div>
-
-                    @request.flash.data.map { case (name, value) =>
-                        @if(name == "error") {
-                            <div class="alert alert-danger">
-                            @value
-                            </div>
-                        } else {
-                            <div class="alert alert-info">
-                            @value
-                            </div>
-                        }
+                <div class="row">
+                    <div class="col-md-6">
+                    @for(comment <- postWithInfo.comments) {
+                        @listItems.commentListItem(comment)
                     }
+                    </div>
 
-                    @* Global errors are not tied to any particular loginForm field *@
-                    @if(commentForm.hasGlobalErrors) {
-                        @commentForm.globalErrors.map { error: FormError =>
-                            <div class="alert alert-danger">
-                                @error.message
-                            </div>
+
+                    <div class="col-md-6 bl-md">
+                        <h2>Share your thoughts</h2>
+                        <small>Let people know what you think!</small>
+
+
+                        @request.flash.data.map { case (name, value) =>
+                            @if(name == "error") {
+                                <div class="alert alert-danger">
+                                @value
+                                </div>
+                            } else {
+                                <div class="alert alert-info">
+                                @value
+                                </div>
+                            }
                         }
-                    }
 
-                    @helper.form(commentFormPostUrl, Symbol("id") -> "user-login-form") {
-                        @helper.CSRF.formField
-                        @helper.inputText(
-                            commentForm("post_id"),
-                            Symbol("class") -> "hidden"
-                        )
-                        @helper.inputText(
-                            commentForm("author"),
-                            Symbol("class") -> "hidden"
-                        )
-                        @helper.inputText(
-                            commentForm("date_added"),
-                            Symbol("class") -> "hidden"
-                        )
-                        @helper.inputText(
-                            commentForm("text"),
-                            Symbol("_label") -> "fa-lock",
-                            Symbol("placeholder") -> "Password",
-                            Symbol("id") -> "Password",
-                            Symbol("class") -> "input100"
-                        )
+                        @* Global errors are not tied to any particular loginForm field *@
+                        @if(commentForm.hasGlobalErrors) {
+                            @commentForm.globalErrors.map { error: FormError =>
+                                <div class="alert alert-danger">
+                                    @error.message
+                                </div>
+                            }
+                        }
 
-                        <div class="container-login100-form-btn">
-                            <button class="login100-form-btn" type="submit" value="Login">
-                                Login
-                            </button>
+                        @helper.form(commentFormPostUrl, Symbol("id") -> "user-login-form") {
+                            @helper.CSRF.formField
+                            @helper.inputText(
+                                commentForm("post_id"),
+                                Symbol("class") -> "hidden"
+                            )
+                            @helper.inputText(
+                                commentForm("author"),
+                                Symbol("class") -> "hidden"
+                            )
+                            @helper.inputText(
+                                commentForm("date_added"),
+                                Symbol("class") -> "hidden"
+                            )
+                            @helper.inputText(
+                                commentForm("text"),
+                                Symbol("_label") -> "fa-comment",
+                                Symbol("placeholder") -> "Type your comment",
+                                Symbol("id") -> "comment",
+                                Symbol("class") -> "input100"
+                            )
+
+                            <div class="container-login100-form-btn">
+                                <button class="login100-form-btn" type="submit" value="comment">
+                                    Place new comment
+                                </button>
+                            </div>
                         </div>
-                }
+                    }
 
                 </div>
 
