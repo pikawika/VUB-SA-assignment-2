@@ -7,5 +7,5 @@
 @(comment: Comment)
 
 <div>
-    <p class="comment"><b>@comment.author</b>: @comment.text</p>
+    <p class="comment"><b><a class="unset-color" href="@routes.UserController.showProfile(comment.author)">@comment.author</a></b>: @comment.text</p>
 </div>

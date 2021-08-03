@@ -4,6 +4,7 @@ import models.user.{User, UserDao}
 
 import javax.inject.Inject
 import models.Global
+import models.post.PostWithInfoDao
 import play.api.data.Forms._
 import play.api.data._
 import play.api.mvc._
@@ -13,9 +14,10 @@ import play.api.mvc._
  * to the application's user related pages through its actions.
  * NOTE: The login portion of this file is heavily inspired on the solutions of WPO session 7.
  */
-class UserController @Inject()(
-                                cc: MessagesControllerComponents,
-                                userDao: UserDao
+class UserController @Inject()(cc: MessagesControllerComponents,
+                               authenticatedUserAction: AuthenticatedUserAction,
+                               postWithInfoDao: PostWithInfoDao,
+                               userDao: UserDao
                               ) extends MessagesAbstractController(cc) {
 
 
@@ -172,5 +174,22 @@ class UserController @Inject()(
 
   //---------------------------------------------------------------------------
   //| END VALIDATION RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START PROFILE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+  /**
+   * Create an Action to render the user profile HTML page.
+   * Posts of user are sorted on newest first.
+   * Only accessible to logged in users.
+   */
+  def showProfile(username: String): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+    val posts = postWithInfoDao.findFromUser(username)
+    Ok(views.html.userPages.userPostOverview("Posts by " + username, posts, username))
+  }
+
+
+  //---------------------------------------------------------------------------
+  //| END PROFILE RELATED FUNCTIONS
   //---------------------------------------------------------------------------
 }

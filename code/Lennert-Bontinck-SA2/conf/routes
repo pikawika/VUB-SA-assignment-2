@@ -1,9 +1,9 @@
-# Route for index and login required page
+# Route for index and login required page.
 GET         /                     controllers.HomeController.showIndex()
 GET         /mostLiked            controllers.HomeController.showIndexSortedOnLikes()
 GET         /loginRequired        controllers.HomeController.showLoginRequired()
 
-# Map static resources from the /public folder to the /assets URL path
+# Map static resources from the /public folder to the /assets URL path.
 GET         /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
 
 # Same /login URL may be used as get and post HTTP method difference is detectable.
@@ -18,7 +18,10 @@ POST        /register             controllers.UserController.processRegisterAtte
 GET         /logout               controllers.AuthenticatedUserController.logout()
 GET         /logout/:error        controllers.AuthenticatedUserController.logoutWithError(error: String)
 
-# Post related pages and pages for interaction
+# Pages related to user profile.
+GET         /profile/:username             controllers.UserController.showProfile(username: String)
+
+# Post related pages and pages for interaction.
 GET         /post/:id             controllers.PostController.showPost(id: Int)
 GET         /like/:id             controllers.PostController.processLikeAttempt(id: Int)
 POST        /comment              controllers.PostController.processCommentAttempt()

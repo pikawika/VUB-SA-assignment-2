@@ -1,0 +1,37 @@
+@*
+* This template provides a template for a page giving an overview of the posts of a user.
+* The first arguments specifies the web title to use, the second is a list of PostWithInfo objects to display,
+* the third is the username of the profile.
+*@
+@import models.post.PostWithInfo
+@(title: String, postsWithInfo: List[PostWithInfo], username: String)(implicit session: Session)
+
+@main(title, session) {
+    @defining(play.core.PlayVersion.current) { version =>
+        <div class="overview">
+            <div class="post-list-item row">
+                <div class="row bb pb-20 mb-20">
+                    <div class="col-md-9">
+                        <h2>Posts by @username</h2>
+                    </div>
+                    <div class="col-md-3 bl-md post-comment-meta">
+                        <i class="far fa-images pink-color push-right-icon"></i>
+                        Showing @postsWithInfo.length posts
+                    </div>
+                </div>
+                <div>
+                    <p class="justify">
+                        Welcome to the profile of @username, one of our CarLovers.
+                        Comment and like on the posts of @username to your hearts desire,
+                        but remember, spread love not hate ✌
+                    </p>
+                </div>
+            </div>
+
+            @for(postWithInfo <- postsWithInfo) {
+                @listItems.postListItem(postWithInfo, session)
+            }
+
+        </div>
+    }
+}

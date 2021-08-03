@@ -47,7 +47,6 @@ class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDa
       // Show newest first
       postsWithInfo.toList.sortBy(_.post.date_added).reverse
     }
-
   }
 
   /**
@@ -62,6 +61,37 @@ class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDa
     val postsWithInfo = PostWithInfo(post, comments, likes)
 
     postsWithInfo
+  }
+
+
+
+  /**
+   * Returns the posts with info of the specified user.
+   * NOTE: this assumes the username is valid, perform check first with uniqueUsername method of UserDao!
+   */
+  def findFromUser(username: String, limit_comments: Boolean = true): List[PostWithInfo] = {
+    // Get all posts (should already be ordered on newest first)
+    val posts = postDao.findFromUser(username)
+
+    // Create empty set to be filled in loop
+    var postsWithInfo: Set[PostWithInfo] = Set()
+
+    // Loop over all posts and collect comments and likes, merge them into PostWithInfo objects and add them to set
+    for (post <- posts) {
+      var comments = commentDao.findForPost(post).sortBy(_.date_added)
+
+      // If comments is limited, take first 3
+      if (limit_comments) {
+        comments = comments.take(3)
+      }
+
+      val likes = likeDao.findForPost(post)
+
+      postsWithInfo = postsWithInfo + PostWithInfo(post, comments, likes)
+    }
+
+    // Return list sorted on newest first
+    postsWithInfo.toList.sortBy(_.post.date_added).reverse
   }
 }
 

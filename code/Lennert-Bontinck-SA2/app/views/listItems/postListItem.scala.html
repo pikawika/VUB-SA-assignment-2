@@ -10,7 +10,7 @@
 
 <div class="row post-list-item">
     <div class="col-md-3">
-        <h4>Post by @postWithInfo.post.author</h4>
+        <h4>Post by <a class="unset-color" href="@routes.UserController.showProfile(postWithInfo.post.author)">@postWithInfo.post.author</a></h4>
         <p class="text-justify post-list-item-description">
         @postWithInfo.post.description
         </p>

@@ -59,6 +59,12 @@ class PostDao @Inject()() {
     id
   }
 
+  /**
+   * Returns all posts from user sorted by the date they were added in reverse order (newest first) from a specific user.
+   * NOTE: this assumes the username is valid, perform check first with uniqueUsername method of UserDao!
+   */
+  def findFromUser(username: String): List[Post] = posts.filter(_.author == username).toList.sortBy(_.date_added).reverse
+
 }
 
 

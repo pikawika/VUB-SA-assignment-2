@@ -1,6 +1,7 @@
 @*
 * This template provides a template for a page giving an overview of the posts.
-* The first arguments specifies the web title to use, the second is a list of PostWithInfo objects to display.
+* The first arguments specifies the web title to use, the second is a list of PostWithInfo objects to display, the third
+* is a bool specifying if the overview is sorted on likes.
 *@
 @import models.post.PostWithInfo
 @(title: String, postsWithInfo: List[PostWithInfo], sorted_on_likes: Boolean)(implicit session: Session)
@@ -36,6 +37,7 @@
                     <p class="justify">
                         Welcome to CarLovers, a social media platform where registered CarLovers can share their
                         favourite car pictures. Comment and like others CarLovers posts to your hearts desire!
+                        You can view someone's profile by clicking on their name.
                         Everyone is welcome, from old-timers to supercars. Spread love not hate ✌
                     </p>
                 </div>

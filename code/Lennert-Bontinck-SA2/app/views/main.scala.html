@@ -56,8 +56,8 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-style-lennert">
                                     <li>
-                                        <a href="@routes.AuthenticatedUserController.logout()">
-                                            <i class="fas fa-user"> </i> Your account (todo)</a>
+                                        <a href="@routes.UserController.showProfile(session.get(models.Global.SESSION_USERNAME_KEY).get)">
+                                            <i class="fas fa-user"> </i> Your account</a>
                                     </li>
                                     <li>
                                         <a href="@routes.PostController.showAddPost()">

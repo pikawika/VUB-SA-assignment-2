@@ -18,6 +18,7 @@ import javax.inject.Inject
  */
 class PostController @Inject()(cc: MessagesControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
+                               authenticatedUserActionWithMessageRequest: AuthenticatedUserActionWithMessageRequest,
                                postDao: PostDao,
                                commentDao: CommentDao,
                                postWithInfoDao: PostWithInfoDao,
@@ -31,7 +32,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   /**
    * Create an Action to render the post page for a specific post ID.
    */
-  def showPost(id: Int): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
+  def showPost(id: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     if (!postDao.isValidId(id)) {
       // If ID is invalid go to home
       Redirect(routes.HomeController.showIndex())
@@ -109,7 +110,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   /**
    * Function to process a comment attempt, forwards user to post on which (s)he commented.
    */
-  def processCommentAttempt(): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
+  def processCommentAttempt(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val errorFunction = { formWithErrors: Form[Comment] =>
       // Issues with form itself (validation and/or binding issues).
       // If a valid post ID can be found display error on post page.
@@ -157,7 +158,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   /**
    * Create an Action to render the add post page.
    */
-  def showAddPost(): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
+  def showAddPost(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
     val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), "", "TempFileName"))
     Ok(views.html.postPages.addPost("Add post", filledAddPostForm, addPostUrl))
@@ -184,7 +185,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   /**
    * Function to process a comment attempt, forwards user to post on which (s)he commented.
    */
-  def processAddPostAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = Action(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
+  def processAddPostAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = authenticatedUserActionWithMessageRequest(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
     val errorFunction = { formWithErrors: Form[Post] =>
       // Issues with form itself (validation and/or binding issues).
       BadRequest(views.html.postPages.addPost("Adding post failed", formWithErrors, addPostUrl))
@@ -212,7 +213,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
             // Create right post object to add
             val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
 
-            // Add the post and retreive it's id
+            // Add the post and retrieve its id
             val post_id = postDao.addPost(post_to_add)
 
             //Display post
@@ -222,16 +223,16 @@ class PostController @Inject()(cc: MessagesControllerComponents,
           } else {
             // File extension not okay
             val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-            val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "TempFileName"))
-            BadRequest(views.html.postPages.addPost("Adding post failed", filledAddPostForm, addPostUrl, issueWithFile = true))
+            val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "WrongFileExtension"))
+            BadRequest(views.html.postPages.addPost("Wrong file - add post", filledAddPostForm, addPostUrl, issueWithFile = true))
           }
 
 
         }.getOrElse {
           // File was not provided
           val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-          val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "TempFileName"))
-          BadRequest(views.html.postPages.addPost("Adding post failed", filledAddPostForm, addPostUrl, issueWithFile = true))
+          val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "NonProvidedFile"))
+          BadRequest(views.html.postPages.addPost("Missing file - add post", filledAddPostForm, addPostUrl, issueWithFile = true))
         }
 
       } else {
