@@ -199,7 +199,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
         val files: Option[MultipartFormData.FilePart[Files.TemporaryFile]] = request.body.file("image")
         files.map { image =>
           // Check for right extension
-          val extension = image.filename.toString.split("\\.").last
+          val extension = image.filename.split("\\.").last
 
           if (extension == "jpeg" || extension == "jpg") {
             // Create unique file name
