@@ -1,0 +1,104 @@
+@*
+* This template provides the add post page.
+* The first arguments specifies the web title to use, the second the add post form and the last the postUrl of the add post form.
+*@
+@import models.post.Post
+@(welcome: String, addPostForm: Form[Post], addPostFormPostUrl: Call, issueWithFile: Boolean = false)(implicit session: Session, request: MessagesRequestHeader)
+@import inputs.inputTextWithIcon
+@import helper.FieldConstructor
+@implicitField = @{
+    FieldConstructor(inputTextWithIcon.f)
+}
+
+@main(welcome, session) {
+    @defining(play.core.PlayVersion.current) { version =>
+
+        <div class="limiter">
+            <div class="container-login100">
+                <div class="wrap-login100">
+                    <div class="login100-pic">
+                        <img alt="CarLovers logo" src="@routes.Assets.versioned("images/logo.png")">
+                    </div>
+
+                    <div class="login100-form" id="user-login-form">
+                        <span class="login100-form-title">
+                            Publish post to CarLovers.be
+                        </span>
+
+                        @request.flash.data.map { case (name, value) =>
+                            @if(name == "error") {
+                                <div class="alert alert-danger">
+                                @value
+                                </div>
+                            } else {
+                                <div class="alert alert-info">
+                                @value
+                                </div>
+                            }
+                        }
+
+                        @if(issueWithFile) {
+                            <div class="alert alert-danger">
+                            Please select exactly one supported file.
+                            </div>
+                        }
+
+                        @* Global errors are not tied to any particular addPostForm field *@
+                        @if(addPostForm.hasGlobalErrors) {
+                            @addPostForm.globalErrors.map { error: FormError =>
+                                <div class="alert alert-danger">
+                                    @error.message
+                                </div>
+                            }
+                        }
+
+                        @helper.form(addPostFormPostUrl, Symbol("enctype") -> "multipart/form-data", Symbol("id") -> "add-post-form") {
+                            @helper.CSRF.formField
+
+                            @helper.inputText(
+                                addPostForm("post_id"),
+                                Symbol("class") -> "hidden"
+                            )
+
+                            @helper.inputText(
+                                addPostForm("author"),
+                                Symbol("class") -> "hidden"
+                            )
+
+                            @helper.inputText(
+                                addPostForm("date_added"),
+                                Symbol("class") -> "hidden"
+                            )
+
+                            @helper.inputText(
+                                addPostForm("image_filename"),
+                                Symbol("class") -> "hidden"
+                            )
+
+                            @helper.inputText(
+                                addPostForm("description"),
+                                Symbol("_label") -> "fa-quote-right",
+                                Symbol("placeholder") -> "Description",
+                                Symbol("id") -> "description",
+                                Symbol("class") -> "input100"
+                            )
+
+                            <label class="add-post-form-btn">
+                                <a id="thumbTekst"> Select one JPG/JPEG image
+                                </a>
+                                <input accept=".jpg, .jpeg" id="thumbToUpload" name="image" style="display: none;" type="file">
+                            </label>
+
+                            <div class="container-login100-form-btn">
+                                <button class="login100-form-btn" type="submit" value="Login">
+                                    Publish post
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    }
+}

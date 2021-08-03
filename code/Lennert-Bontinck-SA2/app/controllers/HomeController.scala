@@ -24,7 +24,7 @@ class HomeController @Inject()(cc: ControllerComponents,
    */
   def showIndex(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
     val posts = postWithInfoDao.findAll(limit_comments = true)
-    Ok(views.html.posts.postOverview("Home", posts, sorted_on_likes = false))
+    Ok(views.html.postPages.postOverview("Home", posts, sorted_on_likes = false))
   }
 
   /**
@@ -34,7 +34,7 @@ class HomeController @Inject()(cc: ControllerComponents,
    */
   def showIndexSortedOnLikes(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
     val posts = postWithInfoDao.findAll(limit_comments = true, sort_on_likes = true)
-    Ok(views.html.posts.postOverview("Home", posts, sorted_on_likes = true))
+    Ok(views.html.postPages.postOverview("Home", posts, sorted_on_likes = true))
   }
 
   //---------------------------------------------------------------------------

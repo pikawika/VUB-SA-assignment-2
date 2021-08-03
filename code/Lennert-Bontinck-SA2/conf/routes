@@ -22,3 +22,5 @@ GET         /logout/:error        controllers.AuthenticatedUserController.logout
 GET         /post/:id             controllers.PostController.showPost(id: Int)
 GET         /like/:id             controllers.PostController.processLikeAttempt(id: Int)
 POST        /comment              controllers.PostController.processCommentAttempt()
+GET         /addPost              controllers.PostController.showAddPost()
+POST        /addPost              controllers.PostController.processAddPostAttempt()

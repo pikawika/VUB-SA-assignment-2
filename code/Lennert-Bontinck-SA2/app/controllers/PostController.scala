@@ -2,11 +2,13 @@ package controllers
 
 import models.comment.{Comment, CommentDao}
 import models.like.{Like, LikeDao}
-import models.post.{PostDao, PostWithInfoDao}
+import models.post.{Post, PostDao, PostWithInfoDao}
 import play.api.data.Form
 import play.api.data.Forms.{localDateTime, mapping, nonEmptyText, number}
+import play.api.libs.Files
 import play.api.mvc._
 
+import java.nio.file.Paths
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -28,7 +30,6 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
   /**
    * Create an Action to render the post page for a specific post ID.
-   * Only accessible to logged in users.
    */
   def showPost(id: Int): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     if (!postDao.isValidId(id)) {
@@ -41,7 +42,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
       // Display post object
       val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
       val filledCommentForm = commentForm.fill(Comment(postWithInfo.post.id, username, LocalDateTime.now(), ""))
-      Ok(views.html.posts.post("Post by " + postWithInfo.post.author, postWithInfo, filledCommentForm, commentPostUrl))
+      Ok(views.html.postPages.post("Post by " + postWithInfo.post.author, postWithInfo, filledCommentForm, commentPostUrl))
     }
   }
 
@@ -67,7 +68,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
       val now_liked = likeDao.toggleLike(like)
 
       // Goto post page and show right flash
-      if(now_liked) {
+      if (now_liked) {
         Redirect(routes.PostController.showPost(post_id))
           .flashing("info" -> "You've now liked this post.")
       } else {
@@ -89,9 +90,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //---------------------------------------------------------------------------
 
   /**
-   * The user register form and it's verification.
-   * Checks if username and password are of correct length and format.
-   * Checks if username is not already taken.
+   * The comment form and it's verification.
    */
   val commentForm: Form[Comment] = Form(
     mapping(
@@ -103,7 +102,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   )
 
   /**
-   * The submit URL of the user register form.
+   * The submit URL of the comment form.
    */
   private val commentPostUrl = routes.PostController.processCommentAttempt()
 
@@ -118,7 +117,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
       val post_id = formWithErrors.data.getOrElse("post_id", -1).toString.toIntOption.getOrElse(-1)
       if (postDao.isValidId(post_id)) {
         val postWithInfo = postWithInfoDao.findWithId(post_id)
-        BadRequest(views.html.posts.post("Commenting failed", postWithInfo, formWithErrors, commentPostUrl))
+        BadRequest(views.html.postPages.post("Commenting failed", postWithInfo, formWithErrors, commentPostUrl))
       } else {
         Redirect(routes.AuthenticatedUserController
           .logoutWithError("There was something wrong with placing your comment. Please try again after logging in."))
@@ -151,6 +150,106 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
   //---------------------------------------------------------------------------
   //| END COMMENT RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START POST ADDING RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+  /**
+   * Create an Action to render the add post page.
+   */
+  def showAddPost(): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
+    val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+    val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), "", "TempFileName"))
+    Ok(views.html.postPages.addPost("Add post", filledAddPostForm, addPostUrl))
+  }
+
+  /**
+   * The user add post form and it's verification.
+   */
+  val addPostForm: Form[Post] = Form(
+    mapping(
+      "post_id" -> number,
+      "author" -> nonEmptyText,
+      "date_added" -> localDateTime,
+      "description" -> nonEmptyText,
+      "image_filename" -> nonEmptyText,
+    )(Post.apply)(Post.unapply)
+  )
+
+  /**
+   * The submit URL of the add post form.
+   */
+  private val addPostUrl = routes.PostController.processAddPostAttempt()
+
+  /**
+   * Function to process a comment attempt, forwards user to post on which (s)he commented.
+   */
+  def processAddPostAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = Action(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
+    val errorFunction = { formWithErrors: Form[Post] =>
+      // Issues with form itself (validation and/or binding issues).
+      BadRequest(views.html.postPages.addPost("Adding post failed", formWithErrors, addPostUrl))
+    }
+    val successFunction = { post: Post =>
+      // Form validation and binding is correct, check correct user
+      val correct_user = request.session.get(models.Global.SESSION_USERNAME_KEY).get == post.author
+
+      if (correct_user) {
+        // Check if file is provided
+        // As per https://www.playframework.com/documentation/2.8.x/ScalaFileUpload
+        val files: Option[MultipartFormData.FilePart[Files.TemporaryFile]] = request.body.file("image")
+        files.map { image =>
+          // Check for right extension
+          val extension = image.filename.toString.split("\\.").last
+
+          if (extension == "jpeg" || extension == "jpg") {
+            // Create unique file name
+            val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+            val filename = username + "-" + System.currentTimeMillis().toString + "." + extension
+
+            // Copy file to right folder
+            image.ref.copyTo(Paths.get(s"public/images/posts/$filename"), replace = true)
+
+            // Create right post object to add
+            val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
+
+            // Add the post and retreive it's id
+            val post_id = postDao.addPost(post_to_add)
+
+            //Display post
+            Redirect(routes.PostController.showPost(post_id))
+              .flashing("info" -> "Your post was created. It might take some time for your image to display, try refreshing if you can't see it.")
+
+          } else {
+            // File extension not okay
+            val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+            val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "TempFileName"))
+            BadRequest(views.html.postPages.addPost("Adding post failed", filledAddPostForm, addPostUrl, issueWithFile = true))
+          }
+
+
+        }.getOrElse {
+          // File was not provided
+          val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+          val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "TempFileName"))
+          BadRequest(views.html.postPages.addPost("Adding post failed", filledAddPostForm, addPostUrl, issueWithFile = true))
+        }
+
+      } else {
+        // Unexpected form data, perform default action of logging out and showing error.
+        Redirect(routes.AuthenticatedUserController
+          .logoutWithError("There was something wrong with adding your post. Please try again after logging in."))
+      }
+    }
+    val formValidationResult: Form[Post] = addPostForm.bindFromRequest
+    formValidationResult.fold(
+      errorFunction,
+      successFunction
+    )
+  }
+
+
+  //---------------------------------------------------------------------------
+  //| END POST ADDING RELATED FUNCTIONS
   //---------------------------------------------------------------------------
 
 

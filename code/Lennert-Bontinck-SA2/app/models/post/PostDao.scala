@@ -41,6 +41,24 @@ class PostDao @Inject()() {
     posts.exists(_.id == id)
   }
 
+  /**
+   * Adds post to repository and returns its ID.
+   * This will make a new post object with correct ID and time.
+   */
+  def addPost(post: Post): Int = {
+    // Determine new ID by adding 1 to current highest
+    val id = posts.maxBy(_.id).id + 1
+
+    // Make new post object with correct time
+    val post_with_time = Post(id, post.author, LocalDateTime.now(), post.description, post.image_filename)
+
+    // Add to list
+    posts = posts + post_with_time
+
+    // Return ID to caller
+    id
+  }
+
 }
 
 

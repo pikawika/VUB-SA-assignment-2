@@ -35,6 +35,7 @@ class CommentDao @Inject()() {
 
   /**
    * Adds comment to repository.
+   * Creates new object so that exact creation time is used.
    */
   def addComment(comment: Comment): Unit = {
     // Make new comment to have exact time of comment placed
