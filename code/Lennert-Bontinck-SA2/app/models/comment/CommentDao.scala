@@ -16,6 +16,7 @@ class CommentDao @Inject()() {
    * Comment variable: the set of comments is kept in memory and has some initial data.
    */
   private var comments = Set(
+    Comment(1, "SnellenEddy", LocalDateTime.of(2021, 7, 21, 20, 30), "Ela Ola, why is nobody commenting on my post é! >:("),
     Comment(2, "SnellenEddy", LocalDateTime.of(2021, 7, 21, 20, 30), "Looks good man!"),
     Comment(2, "Lennert", LocalDateTime.of(2021, 7, 21, 20, 31), "Thanks SnellenEddy!"),
     Comment(2, "SnellenEddy", LocalDateTime.of(2021, 7, 21, 20, 32), "No worries man, I really wish I had one like it. Actually, I had one in the past but I crashed it. It was too fast, even for me, SnellenEddy!"),

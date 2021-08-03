@@ -1,5 +1,6 @@
 # Route for index and login required page
 GET         /                     controllers.HomeController.showIndex()
+GET         /mostLiked            controllers.HomeController.showIndexSortedOnLikes()
 GET         /loginRequired        controllers.HomeController.showLoginRequired()
 
 # Map static resources from the /public folder to the /assets URL path

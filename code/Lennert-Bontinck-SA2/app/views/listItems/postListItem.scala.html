@@ -24,8 +24,14 @@
     </div>
     <div class="col-md-3">
         <div class="post-list-item-comments pb-20">
-        @for(comment <- postWithInfo.comments) {
-            @listItems.commentListItem(comment)
+        @if(postWithInfo.comments.isEmpty) {
+            <div>
+                <p class="comment"><b>Info</b>: This post has no comments yet.</p>
+            </div>
+        } else {
+            @for(comment <- postWithInfo.comments) {
+                @listItems.commentListItem(comment)
+            }
         }
         </div>
 

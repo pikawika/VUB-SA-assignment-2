@@ -19,11 +19,22 @@ class HomeController @Inject()(cc: ControllerComponents,
   //---------------------------------------------------------------------------
   /**
    * Create an Action to render the index HTML page.
+   * Posts are default sorted on newest first.
    * Only accessible to logged in users.
    */
   def showIndex(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
     val posts = postWithInfoDao.findAll(limit_comments = true)
-    Ok(views.html.posts.postOverview("Home", posts))
+    Ok(views.html.posts.postOverview("Home", posts, sorted_on_likes = false))
+  }
+
+  /**
+   * Create an Action to render the index HTML page.
+   * Posts are sorted on most liked first.
+   * Only accessible to logged in users.
+   */
+  def showIndexSortedOnLikes(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+    val posts = postWithInfoDao.findAll(limit_comments = true, sort_on_likes = true)
+    Ok(views.html.posts.postOverview("Home", posts, sorted_on_likes = true))
   }
 
   //---------------------------------------------------------------------------

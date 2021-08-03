@@ -74,7 +74,6 @@ class PostController @Inject()(cc: MessagesControllerComponents,
         Redirect(routes.PostController.showPost(post_id))
           .flashing("info" -> "Your like from this post was removed.")
       }
-
     } else {
       // Unexpected form data, perform default action of logging out and showing error.
       Redirect(routes.AuthenticatedUserController
