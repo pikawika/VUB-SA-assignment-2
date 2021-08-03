@@ -25,12 +25,13 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //---------------------------------------------------------------------------
   //| START SHOW POST PAGE RELATED FUNCTIONS
   //---------------------------------------------------------------------------
+
   /**
    * Create an Action to render the post page for a specific post ID.
    * Only accessible to logged in users.
    */
   def showPost(id: Int): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
-    if(!postDao.isValidId(id)) {
+    if (!postDao.isValidId(id)) {
       // If ID is invalid go to home
       Redirect(routes.HomeController.showIndex())
     } else {
@@ -56,14 +57,29 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   def processLikeAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
     // Get username from cookie and create like object
     val liker = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-    val like = Like(post_id, liker)
 
-    // Toggle like
-    likeDao.toggleLike(like)
+    // Check if a valid post id is given
+    val valid_id = postDao.isValidId(post_id)
 
-    // Goto post page
-    Redirect(routes.PostController.showPost(post_id))
+    if (valid_id) {
+      // Toggle like
+      val like = Like(post_id, liker)
+      val now_liked = likeDao.toggleLike(like)
 
+      // Goto post page and show right flash
+      if(now_liked) {
+        Redirect(routes.PostController.showPost(post_id))
+          .flashing("info" -> "You've now liked this post.")
+      } else {
+        Redirect(routes.PostController.showPost(post_id))
+          .flashing("info" -> "Your like from this post was removed.")
+      }
+
+    } else {
+      // Unexpected form data, perform default action of logging out and showing error.
+      Redirect(routes.AuthenticatedUserController
+        .logoutWithError("There was something wrong with toggling your like. Please try again after logging in."))
+    }
   }
 
 
@@ -97,21 +113,33 @@ class PostController @Inject()(cc: MessagesControllerComponents,
    */
   def processCommentAttempt(): Action[AnyContent] = Action { implicit request: MessagesRequest[AnyContent] =>
     val errorFunction = { formWithErrors: Form[Comment] =>
-      // Issues with form itself (validation and/or binding issues)
-      // TODO: better error handling
-      Redirect(routes.HomeController.showIndex())
+      // Issues with form itself (validation and/or binding issues).
+      // If a valid post ID can be found display error on post page.
+      // If no valid POST id is found; unexpected form data, perform default action of logging out and showing error.
+      val post_id = formWithErrors.data.getOrElse("post_id", -1).toString.toIntOption.getOrElse(-1)
+      if (postDao.isValidId(post_id)) {
+        val postWithInfo = postWithInfoDao.findWithId(post_id)
+        BadRequest(views.html.posts.post("Commenting failed", postWithInfo, formWithErrors, commentPostUrl))
+      } else {
+        Redirect(routes.AuthenticatedUserController
+          .logoutWithError("There was something wrong with placing your comment. Please try again after logging in."))
+      }
+
     }
     val successFunction = { comment: Comment =>
       // Form validation and binding is correct, check correct user and existing post
       val correct_user = request.session.get(models.Global.SESSION_USERNAME_KEY).get == comment.author
       val correct_post = postDao.isValidId(comment.post_id)
 
-      if(correct_user && correct_post) {
-        commentDao.addUser(comment)
+      if (correct_user && correct_post) {
+        // Place comment and show page again!
+        commentDao.addComment(comment)
         Redirect(routes.PostController.showPost(comment.post_id))
+          .flashing("info" -> "Your comment was added!")
       } else {
-        // Form has been most likely tempered with, reroute user to home
-        Redirect(routes.HomeController.showIndex())
+        // Unexpected form data, perform default action of logging out and showing error.
+        Redirect(routes.AuthenticatedUserController
+          .logoutWithError("There was something wrong with placing your comment. Please try again after logging in."))
       }
     }
     val formValidationResult: Form[Comment] = commentForm.bindFromRequest
@@ -125,9 +153,6 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //---------------------------------------------------------------------------
   //| END COMMENT RELATED FUNCTIONS
   //---------------------------------------------------------------------------
-
-
-
 
 
 }

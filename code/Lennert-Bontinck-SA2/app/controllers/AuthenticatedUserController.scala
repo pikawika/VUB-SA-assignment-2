@@ -5,7 +5,7 @@ import play.api.mvc._
 
 /**
  * NOTE: This file is taken from the solutions of WPO session 7.
- * There are no noteworthy modifications.
+ * A function was added to logout and flash an error message
  */
 @Singleton
 class AuthenticatedUserController @Inject()(
@@ -18,6 +18,13 @@ class AuthenticatedUserController @Inject()(
         Redirect(routes.UserController.showLogin())
             .flashing("info" -> "You are logged out.")
             .withNewSession
+    }
+
+    def logoutWithError(message: String): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+        // docs: “withNewSession ‘discards the whole (old) session’”
+        Redirect(routes.UserController.showLogin())
+          .flashing("error" -> message)
+          .withNewSession
     }
 
 }

@@ -14,6 +14,17 @@
 @main(title, session) {
     @defining(play.core.PlayVersion.current) { version =>
         <div class="single-post-page">
+            @request.flash.data.map { case (name, value) =>
+                @if(name == "error") {
+                    <div class="alert alert-danger">
+                    @value
+                    </div>
+                } else {
+                    <div class="alert alert-info">
+                    @value
+                    </div>
+                }
+            }
             <div class="single-post-post">
                 <div class="row bb pb-20">
                     <div class="col-md-9">
@@ -57,19 +68,6 @@
                     <div class="col-md-6 bl-md">
                         <h2>Share your thoughts</h2>
                         <small>Let people know what you think!</small>
-
-
-                        @request.flash.data.map { case (name, value) =>
-                            @if(name == "error") {
-                                <div class="alert alert-danger">
-                                @value
-                                </div>
-                            } else {
-                                <div class="alert alert-info">
-                                @value
-                                </div>
-                            }
-                        }
 
                         @* Global errors are not tied to any particular loginForm field *@
                         @if(commentForm.hasGlobalErrors) {

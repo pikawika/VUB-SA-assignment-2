@@ -32,13 +32,13 @@ class CommentDao @Inject()() {
    */
   def findForPost(post: Post): List[Comment] = comments.filter(_.post_id == post.id).toList.sortBy(_.date_added)
 
-
-
   /**
    * Adds comment to repository.
    */
-  def addUser(comment: Comment): Unit = {
-    comments = comments + comment
+  def addComment(comment: Comment): Unit = {
+    // Make new comment to have exact time of comment placed
+    val comment_with_time = Comment(comment.post_id, comment.author, LocalDateTime.now(), comment.text)
+    comments = comments + comment_with_time
   }
 
 }

@@ -176,11 +176,23 @@ button:hover {
     margin-bottom: 10px;
 }
 
+.input-error .errors {
+    color: red;
+}
+
+.input-error {
+    text-align: left;
+    padding-left: 35px;
+}
+
+.wrap-input100.error input {
+    border: 2px solid red !important;
+}
+
 .input100 {
     font-size: 15px;
     line-height: 1.5;
     color: #666666;
-
     display: block;
     width: 100%;
     background: #e6e6e6;

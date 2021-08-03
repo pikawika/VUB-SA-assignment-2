@@ -32,13 +32,17 @@ class LikeDao @Inject()() {
 
   /**
    * Toggles passed like object: adds or removes it.
+   * Returns bool that says if user has liked post after toggle or not.
    */
-  def toggleLike(like: Like): Unit = {
+  def toggleLike(like: Like): Boolean = {
     if (likes.contains(like)) {
       likes = likes - like
     } else {
       likes = likes + like
     }
+
+    // Return if user liked or not
+    likes.contains(like)
   }
 
 }

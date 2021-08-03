@@ -15,6 +15,7 @@ POST        /register             controllers.UserController.processRegisterAtte
 
 # Page for loging out the user.
 GET         /logout               controllers.AuthenticatedUserController.logout()
+GET         /logout/:error        controllers.AuthenticatedUserController.logoutWithError(error: String)
 
 # Post related pages and pages for interaction
 GET         /post/:id             controllers.PostController.showPost(id: Int)
