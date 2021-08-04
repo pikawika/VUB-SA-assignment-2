@@ -210,13 +210,17 @@ class PostController @Inject()(cc: MessagesControllerComponents,
             // Copy file to right folder
             image.ref.copyTo(Paths.get(s"public/images/posts/$filename"), replace = true)
 
+            // Wait for some time so that copy is performed
+            // It seems like there is no "onComplete" like procedures possible on the copyTo function.
+            Thread.sleep(1000)
+
             // Create right post object to add
             val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
 
             // Add the post and retrieve its id
             val post_id = postDao.addPost(post_to_add)
 
-            //Display post
+            // Display post
             Redirect(routes.PostController.showPost(post_id))
               .flashing("info" -> "Your post was created. It might take some time for your image to display, try refreshing if you can't see it.")
 
