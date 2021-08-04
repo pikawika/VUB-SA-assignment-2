@@ -44,6 +44,13 @@ class PostDao @Inject()(visibilityDao: VisibilityDao) {
   }
 
   /**
+   * Returns whether or not a user is the author of a post ID.
+   */
+  def isAuthor(id: Int, author: String): Boolean = {
+    posts.exists(post => post.id == id && post.author == author)
+  }
+
+  /**
    * Adds post and visibility to post and visibility repository and returns its ID.
    * This will make a new post and visibility object with correct ID and time.
    */
@@ -72,6 +79,13 @@ class PostDao @Inject()(visibilityDao: VisibilityDao) {
    * NOTE: this assumes the username is valid, perform check first with uniqueUsername method of UserDao!
    */
   def findFromUser(username: String): List[Post] = posts.filter(_.author == username).toList.sortBy(_.date_added).reverse
+
+  /**
+   * Deletes the passed post object.
+   */
+  def deletePost(post: Post): Unit = {
+    posts = posts - post
+  }
 
 }
 

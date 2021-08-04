@@ -62,7 +62,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
    * Function to process a like attempt, forwards user to post which (s)he liked.
    */
   def processLikeAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    // Get username from cookie and create like object
+    // Get username from cookie
     val liker = request.session.get(models.Global.SESSION_USERNAME_KEY).get
 
     // Check if a valid post id is given
@@ -279,10 +279,41 @@ class PostController @Inject()(cc: MessagesControllerComponents,
       successFunction
     )
   }
+  //---------------------------------------------------------------------------
+  //| END POST ADDING RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //---------------------------------------------------------------------------
+  //| START POST DELETE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+  /**
+   * Function to process a like attempt, forwards user to post which (s)he liked.
+   */
+  def processPostDeleteAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+    // Get username from cookie
+    val deleter = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+
+    // Check if valid deleter is author of post
+    val valid_author = postDao.isAuthor(post_id, deleter)
+
+    if (valid_author) {
+      // Get post and delete it
+      val post = postDao.findWithId(post_id)
+      postDao.deletePost(post)
+
+      // Go to profile page after deletion
+      Redirect(routes.UserController.showProfile(deleter))
+        .flashing("info" -> "Your post was deleted")
+    } else {
+      // Unexpected form data, perform default action of logging out and showing error.
+      Redirect(routes.AuthenticatedUserController
+        .logoutWithError("There was something wrong with deleting your post. Please try again after logging in."))
+    }
+  }
 
 
   //---------------------------------------------------------------------------
-  //| END POST ADDING RELATED FUNCTIONS
+  //| END POST DELETE RELATED FUNCTIONS
   //---------------------------------------------------------------------------
 
 

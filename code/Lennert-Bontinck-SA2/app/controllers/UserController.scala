@@ -16,6 +16,7 @@ import play.api.mvc._
  */
 class UserController @Inject()(cc: MessagesControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
+                               authenticatedUserActionWithMessageRequest: AuthenticatedUserActionWithMessageRequest,
                                postWithInfoDao: PostWithInfoDao,
                                userDao: UserDao
                               ) extends MessagesAbstractController(cc) {
@@ -183,7 +184,7 @@ class UserController @Inject()(cc: MessagesControllerComponents,
    * Posts of user are sorted on newest first.
    * Only accessible to logged in users.
    */
-  def showProfile(username: String): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+  def showProfile(username: String): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val viewing_username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
     val posts = postWithInfoDao.findFromUser(username, viewing_username)
     Ok(views.html.userPages.userPostOverview("Posts by " + username, posts, username))

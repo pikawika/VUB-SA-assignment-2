@@ -1,29 +1,30 @@
 # Route for index and login required page.
-GET         /                     controllers.HomeController.showIndex()
-GET         /mostLiked            controllers.HomeController.showIndexSortedOnLikes()
-GET         /loginRequired        controllers.HomeController.showLoginRequired()
+GET         /                         controllers.HomeController.showIndex()
+GET         /mostLiked                controllers.HomeController.showIndexSortedOnLikes()
+GET         /loginRequired            controllers.HomeController.showLoginRequired()
 
 # Map static resources from the /public folder to the /assets URL path.
-GET         /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file             controllers.Assets.versioned(path="/public", file: Asset)
 
 # Same /login URL may be used as get and post HTTP method difference is detectable.
-GET         /login                controllers.UserController.showLogin()
-POST        /login                controllers.UserController.processLoginAttempt()
+GET         /login                    controllers.UserController.showLogin()
+POST        /login                    controllers.UserController.processLoginAttempt()
 
 # Same /register URL may be used as get and post HTTP method difference is detectable.
-GET         /register             controllers.UserController.showRegister()
-POST        /register             controllers.UserController.processRegisterAttempt()
+GET         /register                 controllers.UserController.showRegister()
+POST        /register                 controllers.UserController.processRegisterAttempt()
 
 # Page for loging out the user.
-GET         /logout               controllers.AuthenticatedUserController.logout()
-GET         /logout/:error        controllers.AuthenticatedUserController.logoutWithError(error: String)
+GET         /logout                   controllers.AuthenticatedUserController.logout()
+GET         /logout/:error            controllers.AuthenticatedUserController.logoutWithError(error: String)
 
 # Pages related to user profile.
-GET         /profile/:username             controllers.UserController.showProfile(username: String)
+GET         /profile/:username        controllers.UserController.showProfile(username: String)
 
 # Post related pages and pages for interaction.
-GET         /post/:id             controllers.PostController.showPost(id: Int)
-GET         /like/:id             controllers.PostController.processLikeAttempt(id: Int)
-POST        /comment              controllers.PostController.processCommentAttempt()
-GET         /addPost              controllers.PostController.showAddPost()
-POST        /addPost              controllers.PostController.processAddPostAttempt()
+GET         /post/:id                 controllers.PostController.showPost(id: Int)
+GET         /deletePost/:id           controllers.PostController.processPostDeleteAttempt(id: Int)
+GET         /like/:id                 controllers.PostController.processLikeAttempt(id: Int)
+POST        /comment                  controllers.PostController.processCommentAttempt()
+GET         /addPost                  controllers.PostController.showAddPost()
+POST        /addPost                  controllers.PostController.processAddPostAttempt()

@@ -16,6 +16,8 @@
         </p>
         <small>Posted on: @postWithInfo.post.date_added.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))</small>
 
+        @postPages.postEditItems(postWithInfo, session)
+
     </div>
     <div class="col-md-6 post-list-item-photo">
         <a title="Read more" href="@routes.PostController.showPost(postWithInfo.post.id)">

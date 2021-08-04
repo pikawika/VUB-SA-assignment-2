@@ -1,0 +1,21 @@
+@*
+* This template provides a simple comment icon and amount HTML for a PostWithInfo item.
+* Expects a PostWithInfo for which comment icon and amount should be displayed and session to have access to user cookies.
+*@
+@import models.post.PostWithInfo
+@(postWithInfo: PostWithInfo, session: Session)
+@if(session.get(models.Global.SESSION_USERNAME_KEY).isDefined &&
+        postWithInfo.post.author == session.get(models.Global.SESSION_USERNAME_KEY).get) {
+
+    <a class="post-read-more mt-20" href="@routes.PostController.processPostDeleteAttempt(postWithInfo.post.id)">
+        Delete
+        <i aria-hidden="true" class="fas fa-trash"></i>
+    </a>
+
+    <a class="post-read-more" href="@routes.PostController.processPostDeleteAttempt(postWithInfo.post.id)">
+        Change visibility (TODO)
+        <i aria-hidden="true" class="fas fa-eye"></i>
+    </a>
+}
+
+
