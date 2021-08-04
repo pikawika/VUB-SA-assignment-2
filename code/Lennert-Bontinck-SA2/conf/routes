@@ -23,10 +23,13 @@ GET         /profile/:username        controllers.UserController.showProfile(use
 
 # Post related pages and pages for interaction.
 GET         /post/:id                 controllers.PostController.showPost(id: Int)
-GET         /deletePost/:id           controllers.PostController.processPostDeleteAttempt(id: Int)
-GET         /editPost/:id             controllers.PostController.showEditVisibility(id: Int)
-POST        /editPost                 controllers.PostController.processEditVisibilityAttempt()
 GET         /like/:id                 controllers.PostController.processLikeAttempt(id: Int)
 POST        /comment                  controllers.PostController.processCommentAttempt()
+
+# Post edit and add related pages
 GET         /addPost                  controllers.PostController.showAddPost()
 POST        /addPost                  controllers.PostController.processAddPostAttempt()
+GET         /editPost/:id             controllers.PostController.showEditVisibility(id: Int)
+POST        /editPost                 controllers.PostController.processEditVisibilityAttempt()
+GET         /deletePost/:id           controllers.PostController.processPostDeleteAttempt(id: Int)
+
