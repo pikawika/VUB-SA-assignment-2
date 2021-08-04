@@ -20,11 +20,18 @@
                     </div>
                 </div>
                 <div>
+                @if(postsWithInfo.isEmpty) {
+                    <p class="justify">
+                        Welcome to the profile of @username, one of our CarLovers.
+                        @username does not have any posts yet, perhaps you can come back later!
+                    </p>
+                } else {
                     <p class="justify">
                         Welcome to the profile of @username, one of our CarLovers.
                         Comment and like on the posts of @username to your hearts desire,
                         but remember, spread love not hate ✌
                     </p>
+                }
                 </div>
             </div>
 

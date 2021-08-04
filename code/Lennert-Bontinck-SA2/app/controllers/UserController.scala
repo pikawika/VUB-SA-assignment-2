@@ -184,7 +184,8 @@ class UserController @Inject()(cc: MessagesControllerComponents,
    * Only accessible to logged in users.
    */
   def showProfile(username: String): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    val posts = postWithInfoDao.findFromUser(username)
+    val viewing_username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+    val posts = postWithInfoDao.findFromUser(username, viewing_username)
     Ok(views.html.userPages.userPostOverview("Posts by " + username, posts, username))
   }
 

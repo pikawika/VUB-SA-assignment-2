@@ -15,7 +15,7 @@ class VisibilityDao @Inject()() {
    * Visibilities variable: the set of visibility objects is kept in memory and has some initial data.
    */
   private var visibilities = Set(
-    Visibility(1, visible_to_all = true, List()),
+    Visibility(1, visible_to_all = false, List()),
     Visibility(2, visible_to_all = true, List()),
     Visibility(3, visible_to_all = true, List())
   )
