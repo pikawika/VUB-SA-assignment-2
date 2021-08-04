@@ -48,19 +48,19 @@
                                 <h5>My post may be visible to</h5>
                                 <div>
                                     <input type="radio" id="all" name="visibility" value="all"
-                                    @if(postWithInfo.visibility.visible_to_all) {checked}>
+                                    @if(postWithInfo.visibility.isVisibleToEveryone) {checked}>
                                     <label for="all">Everyone</label>
                                 </div>
                                 <div>
                                     <input type="radio" id="specific" name="visibility" value="specific"
-                                    @if(!postWithInfo.visibility.visible_to_all) {checked}>
+                                    @if(!postWithInfo.visibility.isVisibleToEveryone) {checked}>
                                     <label for="specific">A specific list of users specified below</label>
                                 </div>
                                 <h5>Only show posts to:</h5>
                                 @for(sharableUsername <- sharableUsernames) {
                                     <div class="col-md-6">
                                         <input name="shareWithUsernames" type="checkbox" id="@sharableUsername" value="@sharableUsername"
-                                        @if(postWithInfo.visibility.visible_to_usernames.contains(sharableUsername)) {checked}>
+                                        @if(postWithInfo.visibility.listOfVisibleUsernames.contains(sharableUsername)) {checked}>
                                         <label class="goodlabel" for="@sharableUsername">@sharableUsername</label>
                                     </div>
                                 }

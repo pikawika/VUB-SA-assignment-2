@@ -12,14 +12,12 @@ import play.api.mvc._
 /**
  * This controller is responsible for handling HTTP requests
  * to the application's user related pages through its actions.
- * NOTE: The login portion of this file is heavily inspired on the solutions of WPO session 7.
+ * NOTE: The login/logoff portion of this file is heavily inspired on the solutions of WPO session 7.
  */
 class UserController @Inject()(cc: MessagesControllerComponents,
-                               authenticatedUserAction: AuthenticatedUserAction,
                                authenticatedUserActionWithMessageRequest: AuthenticatedUserActionWithMessageRequest,
                                postWithInfoDao: PostWithInfoDao,
-                               userDao: UserDao
-                              ) extends MessagesAbstractController(cc) {
+                               userDao: UserDao) extends MessagesAbstractController(cc) {
 
 
   //---------------------------------------------------------------------------
@@ -189,7 +187,6 @@ class UserController @Inject()(cc: MessagesControllerComponents,
     val posts = postWithInfoDao.findFromUser(username, viewing_username)
     Ok(views.html.userPages.userPostOverview("Posts by " + username, posts, username))
   }
-
 
   //---------------------------------------------------------------------------
   //| END PROFILE RELATED FUNCTIONS

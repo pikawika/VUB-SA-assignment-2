@@ -23,7 +23,7 @@ class PostWithInfoDao @Inject()(postDao: PostDao,
    * Optional parameter limit_comments: Boolean specifying if all comments should be gathered or only first 3.
    * Optional parameter sort_on_likes: Boolean specifying if post should ne sorted on amount of likes instead.
    */
-  def findAll(viewing_username: String, limit_comments: Boolean = false, sort_on_likes: Boolean = false): List[PostWithInfo] = {
+  def findAll(viewing_username: String, limitComments: Boolean = false, sortOnLikes: Boolean = false): List[PostWithInfo] = {
     // Get all posts (should already be ordered on newest first)
     val posts = postDao.findAll
 
@@ -36,10 +36,10 @@ class PostWithInfoDao @Inject()(postDao: PostDao,
 
       // Only include posts visible to viewing user
       if (visibilityDao.userCanViewPost(post, viewing_username)) {
-        var comments = commentDao.findForPost(post).sortBy(_.date_added)
+        var comments = commentDao.findForPost(post).sortBy(_.dateAdded)
 
         // If comments is limited, take first 3
-        if (limit_comments) {
+        if (limitComments) {
           comments = comments.take(3)
         }
 
@@ -50,7 +50,7 @@ class PostWithInfoDao @Inject()(postDao: PostDao,
     }
 
     // Sort list and return it
-    if (sort_on_likes) {
+    if (sortOnLikes) {
       // Show most liked first
       postsWithInfo.toList.sortBy(_.likes.length).reverse
     } else {
@@ -90,7 +90,7 @@ class PostWithInfoDao @Inject()(postDao: PostDao,
     for (post <- posts) {
       // Only include posts visible to viewing user
       if (visibilityDao.userCanViewPost(post, viewing_username)) {
-        var comments = commentDao.findForPost(post).sortBy(_.date_added)
+        var comments = commentDao.findForPost(post).sortBy(_.dateAdded)
 
         // If comments is limited, take first 3
         if (limit_comments) {

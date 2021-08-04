@@ -12,6 +12,7 @@ import play.api.mvc._
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
+                               authenticatedUserActionWithMessageRequest: AuthenticatedUserActionWithMessageRequest,
                                postWithInfoDao: PostWithInfoDao) extends AbstractController(cc) {
 
   //---------------------------------------------------------------------------
@@ -22,10 +23,10 @@ class HomeController @Inject()(cc: ControllerComponents,
    * Posts are default sorted on newest first.
    * Only accessible to logged in users.
    */
-  def showIndex(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+  def showIndex(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-    val posts = postWithInfoDao.findAll(username, limit_comments = true)
-    Ok(views.html.postPages.postOverview("Home", posts, sorted_on_likes = false))
+    val posts = postWithInfoDao.findAll(username, limitComments = true)
+    Ok(views.html.postPages.postOverview("Home", posts, sortedOnLikes = false))
   }
 
   /**
@@ -33,10 +34,10 @@ class HomeController @Inject()(cc: ControllerComponents,
    * Posts are sorted on most liked first.
    * Only accessible to logged in users.
    */
-  def showIndexSortedOnLikes(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+  def showIndexSortedOnLikes(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-    val posts = postWithInfoDao.findAll(username, limit_comments = true, sort_on_likes = true)
-    Ok(views.html.postPages.postOverview("Home", posts, sorted_on_likes = true))
+    val posts = postWithInfoDao.findAll(username, limitComments = true, sortOnLikes = true)
+    Ok(views.html.postPages.postOverview("Home", posts, sortedOnLikes = true))
   }
 
   //---------------------------------------------------------------------------

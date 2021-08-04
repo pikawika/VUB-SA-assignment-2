@@ -29,7 +29,7 @@ POST        /comment                  controllers.PostController.processCommentA
 # Post edit and add related pages
 GET         /addPost                  controllers.PostController.showAddPost()
 POST        /addPost                  controllers.PostController.processAddPostAttempt()
-GET         /editPost/:id             controllers.PostController.showEditVisibility(id: Int)
+GET         /editPost/:id             controllers.PostController.showEditPostVisibility(id: Int)
 POST        /editPost                 controllers.PostController.processEditVisibilityAttempt()
 GET         /deletePost/:id           controllers.PostController.processPostDeleteAttempt(id: Int)
 

@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 /**
  * Simple case class to represent a comment.
  */
-case class Comment(post_id: Int,
+case class Comment(postId: Int,
                    author: String,
-                   date_added: LocalDateTime,
+                   dateAdded: LocalDateTime,
                    text: String)

@@ -15,17 +15,17 @@ class VisibilityDao @Inject()() {
    * Visibilities variable: the set of visibility objects is kept in memory and has some initial data.
    */
   private var visibilities = Set(
-    Visibility(1, visible_to_all = true, List()),
-    Visibility(2, visible_to_all = true, List()),
-    Visibility(3, visible_to_all = true, List()),
-    Visibility(4, visible_to_all = false, List("SnellenEddy"))
+    Visibility(1, isVisibleToEveryone = true, List()),
+    Visibility(2, isVisibleToEveryone = true, List()),
+    Visibility(3, isVisibleToEveryone = true, List()),
+    Visibility(4, isVisibleToEveryone = false, List("SnellenEddy"))
   )
 
   /**
    * Returns the visibility of a post.
    * NOTE: this assumes the ID is valid, perform check first with isValidId method of PostDao!
    */
-  def findForPost(post: Post): Visibility = visibilities.find(_.post_id == post.id).get
+  def findForPost(post: Post): Visibility = visibilities.find(_.postId == post.id).get
 
   /**
    * Adds visibility to repository.
@@ -50,7 +50,7 @@ class VisibilityDao @Inject()() {
   def userCanViewPost(post: Post, viewing_username: String): Boolean = {
     val visibility = findForPost(post)
 
-    post.author == viewing_username || visibility.visible_to_all || visibility.visible_to_usernames.contains(viewing_username)
+    post.author == viewing_username || visibility.isVisibleToEveryone || visibility.listOfVisibleUsernames.contains(viewing_username)
   }
 }
 

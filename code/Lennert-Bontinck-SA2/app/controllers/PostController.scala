@@ -26,8 +26,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
                                postDao: PostDao,
                                commentDao: CommentDao,
                                postWithInfoDao: PostWithInfoDao,
-                               likeDao: LikeDao
-                              ) extends MessagesAbstractController(cc) {
+                               likeDao: LikeDao) extends MessagesAbstractController(cc) {
 
   //---------------------------------------------------------------------------
   //| START SHOW POST PAGE RELATED FUNCTIONS
@@ -35,15 +34,17 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
   /**
    * Create an Action to render the post page for a specific post ID.
+   * Only accessible to logged in users with rights to view post.
    */
-  def showPost(id: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
+  def showPost(postId: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-    if (!postDao.isValidId(id) || !visibilityDao.userCanViewPost(postDao.findWithId(id), username)) {
+    if (!postDao.isValidId(postId) || !visibilityDao.userCanViewPost(postDao.findWithId(postId), username)) {
       // ID invalid or no rights to view, show index
       Redirect(routes.HomeController.showIndex())
+        .flashing("info" -> "The post you requested is not available to you")
     } else {
       // Get post object
-      val postWithInfo = postWithInfoDao.findWithId(id)
+      val postWithInfo = postWithInfoDao.findWithId(postId)
 
       // Display post object
       val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
@@ -60,25 +61,23 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
   /**
    * Function to process a like attempt, forwards user to post which (s)he liked.
+   * Only accessible to logged in users with rights to view post.
    */
-  def processLikeAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+  def processLikeAttempt(postId: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
     // Get username from cookie
     val liker = request.session.get(models.Global.SESSION_USERNAME_KEY).get
 
-    // Check if a valid post id is given
-    val valid_id = postDao.isValidId(post_id)
-
-    if (valid_id) {
+    if (postDao.isValidId(postId) && visibilityDao.userCanViewPost(postDao.findWithId(postId), liker)) {
       // Toggle like
-      val like = Like(post_id, liker)
-      val now_liked = likeDao.toggleLike(like)
+      val like = Like(postId, liker)
+      val userHasNowLiked = likeDao.toggleLike(like)
 
       // Goto post page and show right flash
-      if (now_liked) {
-        Redirect(routes.PostController.showPost(post_id))
+      if (userHasNowLiked) {
+        Redirect(routes.PostController.showPost(postId))
           .flashing("info" -> "You've now liked this post.")
       } else {
-        Redirect(routes.PostController.showPost(post_id))
+        Redirect(routes.PostController.showPost(postId))
           .flashing("info" -> "Your like from this post was removed.")
       }
     } else {
@@ -113,17 +112,18 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   private val commentPostUrl = routes.PostController.processCommentAttempt()
 
   /**
-   * Function to process a comment attempt, forwards user to post on which (s)he commented.
+   * Function to process a comment attempt, forwards user to post on which (s)he commented on success.
+   * Only accessible to logged in users with rights to view post.
    */
   def processCommentAttempt(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val errorFunction = { formWithErrors: Form[Comment] =>
       // Issues with form itself (validation and/or binding issues).
       // If a valid post ID can be found display error on post page.
       // If no valid POST id is found; unexpected form data, perform default action of logging out and showing error.
-      val post_id = formWithErrors.data.getOrElse("post_id", -1).toString.toIntOption.getOrElse(-1)
+      val postId = formWithErrors.data.getOrElse("post_id", -1).toString.toIntOption.getOrElse(-1)
       val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-      if (postDao.isValidId(post_id) && visibilityDao.userCanViewPost(postDao.findWithId(post_id), username)) {
-        val postWithInfo = postWithInfoDao.findWithId(post_id)
+      if (postDao.isValidId(postId) && visibilityDao.userCanViewPost(postDao.findWithId(postId), username)) {
+        val postWithInfo = postWithInfoDao.findWithId(postId)
         BadRequest(views.html.postPages.post("Commenting failed", postWithInfo, formWithErrors, commentPostUrl))
       } else {
         Redirect(routes.AuthenticatedUserController
@@ -132,14 +132,15 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
     }
     val successFunction = { comment: Comment =>
-      // Form validation and binding is correct, check correct user and existing post
-      val correct_user = request.session.get(models.Global.SESSION_USERNAME_KEY).get == comment.author
-      val correct_post = postDao.isValidId(comment.post_id)
+      // Form validation and binding is correct, check correct user and existing post with view access
+      val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+      val userIsAuthor = username == comment.author
+      val isCorrectPost = postDao.isValidId(comment.postId) && visibilityDao.userCanViewPost(postDao.findWithId(comment.postId), username)
 
-      if (correct_user && correct_post) {
+      if (userIsAuthor && isCorrectPost) {
         // Place comment and show page again!
         commentDao.addComment(comment)
-        Redirect(routes.PostController.showPost(comment.post_id))
+        Redirect(routes.PostController.showPost(comment.postId))
           .flashing("info" -> "Your comment was added!")
       } else {
         // Unexpected form data, perform default action of logging out and showing error.
@@ -163,6 +164,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
   /**
    * Create an Action to render the add post page.
+   * Only accessible to logged in users.
    */
   def showAddPost(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
@@ -190,7 +192,8 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   private val addPostUrl = routes.PostController.processAddPostAttempt()
 
   /**
-   * Function to process a comment attempt, forwards user to post on which (s)he commented.
+   * Function to process an add post attempt, forwards user to post (s)he added
+   * Only accessible to logged in users.
    */
   def processAddPostAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = authenticatedUserActionWithMessageRequest(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
     val errorFunction = { formWithErrors: Form[Post] =>
@@ -201,22 +204,18 @@ class PostController @Inject()(cc: MessagesControllerComponents,
     }
     val successFunction = { post: Post =>
       // Form validation and binding is correct, check correct user
-      val correct_user = request.session.get(models.Global.SESSION_USERNAME_KEY).get == post.author
-
-      if (correct_user) {
+      val correctUser = request.session.get(models.Global.SESSION_USERNAME_KEY).get == post.author
+      if (correctUser) {
         // Check if file is provided
-        // As per https://www.playframework.com/documentation/2.8.x/ScalaFileUpload
+        // As per akka play doc: https://www.playframework.com/documentation/2.8.x/ScalaFileUpload
         val files: Option[MultipartFormData.FilePart[Files.TemporaryFile]] = request.body.file("image")
         files.map { image =>
           // Check for right extension
           val extension = image.filename.split("\\.").last
-
           if (extension == "jpeg" || extension == "jpg") {
-
-            // Check for correct visibility settings
-            val visibility_settings_ok = request.body.dataParts.contains("visibility")
-
-            if (visibility_settings_ok) {
+            // Check for correct visibility settings of form
+            val correctVisibilitySettingsSupplied = request.body.dataParts.contains("visibility")
+            if (correctVisibilitySettingsSupplied) {
               // Create unique file name
               val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
               val filename = username + "-" + System.currentTimeMillis().toString + "." + extension
@@ -225,25 +224,25 @@ class PostController @Inject()(cc: MessagesControllerComponents,
               image.ref.copyTo(Paths.get(s"public/images/posts/$filename"), replace = true)
 
               // Wait for some time so that copy is performed
-              // It seems like there is no "onComplete" like procedures possible on the copyTo function.
+              // NOTE: It seems like there is no "onComplete" like procedures possible on the copyTo function.
               Thread.sleep(1000)
 
               // Create right post object to add
-              val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
+              val postToAdd = Post(post.id, username, LocalDateTime.now(), post.description, filename)
 
               // Create right visibility object
-              val visible_to_all = request.body.dataParts("visibility").contains("all")
-              val visible_to_users = request.body.dataParts.getOrElse("shareWithUsernames", List()).toList
-              val visibility = Visibility(post.id, visible_to_all = visible_to_all, visible_to_users)
+              val postVisibleToAll = request.body.dataParts("visibility").contains("all")
+              val listOfUsersPostVisibleTo = request.body.dataParts.getOrElse("shareWithUsernames", List()).toList
+              val visibility = Visibility(post.id, isVisibleToEveryone = postVisibleToAll, listOfUsersPostVisibleTo)
 
               // Add the post and retrieve its id
-              val post_id = postDao.addPost(post_to_add, visibility)
+              val newPostId = postDao.addPost(postToAdd, visibility)
 
-              // Display post
-              Redirect(routes.PostController.showPost(post_id))
+              // Display newly added post
+              Redirect(routes.PostController.showPost(newPostId))
                 .flashing("info" -> "Your post was created. It might take some time for your image to display, try refreshing if you can't see it.")
             } else {
-              // visibility not okay
+              // check for visibility settings of form else: visibility not okay
               val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
               val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "WrongVisibility"))
               val allUsernames = userDao.findAllOtherUsers(username)
@@ -251,16 +250,15 @@ class PostController @Inject()(cc: MessagesControllerComponents,
             }
 
           } else {
-            // File extension not okay
+            // File extension else: file extension not okay
             val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
             val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "WrongFileExtension"))
             val allUsernames = userDao.findAllOtherUsers(username)
             BadRequest(views.html.postPages.addPost("Wrong file - add post", filledAddPostForm, addPostUrl, allUsernames, issueWithFile = true))
           }
 
-
         }.getOrElse {
-          // File was not provided
+          // Map for file else: File was not provided
           val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
           val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "NonProvidedFile"))
           val allUsernames = userDao.findAllOtherUsers(username)
@@ -286,18 +284,19 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //---------------------------------------------------------------------------
 
   /**
-   * Function to process a like attempt, forwards user to post which (s)he liked.
+   * Function to process a post delete attempt, forwards user to their profile on successful deletion.
+   * Only accessible to logged in user with rights to delete post.
    */
-  def processPostDeleteAttempt(post_id: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
+  def processPostDeleteAttempt(postId: Int): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
     // Get username from cookie
     val deleter = request.session.get(models.Global.SESSION_USERNAME_KEY).get
 
     // Check if valid deleter is author of post
-    val valid_author = postDao.isAuthor(post_id, deleter)
+    val isAuthorOfPostToDelete = postDao.isAuthor(postId, deleter)
 
-    if (valid_author) {
+    if (isAuthorOfPostToDelete) {
       // Get post and delete it
-      val post = postDao.findWithId(post_id)
+      val post = postDao.findWithId(postId)
       postDao.deletePost(post)
 
       // Go to profile page after deletion
@@ -317,16 +316,16 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //| START EDIT VISIBILITY RELATED FUNCTIONS
   //---------------------------------------------------------------------------
 
-
   /**
-   * Create an Action to render the add post page.
+   * Create an Action to render the edit post visibility page.
+   * Only accessible to logged in users with right to edit post visibility.
    */
-  def showEditVisibility(id: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
+  def showEditPostVisibility(postId: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
 
-    if (postDao.isAuthor(id, username)) {
+    if (postDao.isAuthor(postId, username)) {
       val allUsernames = userDao.findAllOtherUsers(username)
-      val postWithInfo = postWithInfoDao.findWithId(id)
+      val postWithInfo = postWithInfoDao.findWithId(postId)
       Ok(views.html.postPages.editVisibility("Edit visibility of post", postWithInfo, editPostVisibilityUrl, allUsernames))
     } else {
       // Unexpected form data, perform default action of logging out and showing error.
@@ -338,48 +337,48 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   /**
    * The submit URL of the edit post visibility form.
    */
-  //todo
   private val editPostVisibilityUrl = routes.PostController.processEditVisibilityAttempt()
 
+  /**
+   * Processes a form to edit visibility.
+   * Only accessible to logged in users with right to edit post visibility.
+   */
   def processEditVisibilityAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = authenticatedUserActionWithMessageRequest(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
-    val visibility_settings_ok = request.body.dataParts.contains("visibility") && request.body.dataParts.contains("post_id")
+    // Check if all required form fields supplied.
+    val visibilitySettingsFromFormCorrect = request.body.dataParts.contains("visibility") && request.body.dataParts.contains("post_id")
+    if (visibilitySettingsFromFormCorrect) {
+      // Check if valid editor: author of post
+      val editor = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+      val postId = request.body.dataParts("post_id").toList.head.toInt
+      val isValidAuthor = postDao.isAuthor(postId, editor)
 
-    if (visibility_settings_ok) {
-      // Check if valid deleter is author of post
-      val edit_author = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-      val post_id = request.body.dataParts("post_id").toList.head.toInt
-      val valid_author = postDao.isAuthor(post_id, edit_author)
-
-      if (valid_author) {
+      if (isValidAuthor) {
         // Make new visibility object
-        val visible_to_all = request.body.dataParts("visibility").contains("all")
-        val visible_to_users = request.body.dataParts.getOrElse("shareWithUsernames", List()).toList
-        val newVisibilities = Visibility(post_id, visible_to_all, visible_to_users)
-        val post = postDao.findWithId(post_id)
+        val isVisibleToEveryone = request.body.dataParts("visibility").contains("all")
+        val listOfVisibleUsernames = request.body.dataParts.getOrElse("shareWithUsernames", List()).toList
+        val newVisibilities = Visibility(postId, isVisibleToEveryone, listOfVisibleUsernames)
+        val post = postDao.findWithId(postId)
 
         // Edit visibility
         visibilityDao.editVisibility(post, newVisibilities)
 
         // Show post
-        Redirect(routes.PostController.showPost(post_id))
+        Redirect(routes.PostController.showPost(postId))
           .flashing("info" -> "Visibility has been changed!")
       } else {
-        // Unexpected form data, perform default action of logging out and showing error.
+        // Non valid author, which is likely tempered form, perform default action of logging out and showing error.
         Redirect(routes.AuthenticatedUserController
-          .logoutWithError("There was something wrong with deleting your post. Please try again after logging in."))
+          .logoutWithError("There was something wrong with editing your post. Please try again after logging in."))
       }
     } else {
-      // Unexpected form data, perform default action of logging out and showing error.
+      // Not all required form fields supplied, form likely been tempered with.
+      // Perform default action of logging out and showing error.
       Redirect(routes.AuthenticatedUserController
-        .logoutWithError("There was something wrong with deleting your post. Please try again after logging in."))
+        .logoutWithError("There was something wrong with editing your post. Please try again after logging in."))
     }
   }
-
-
 
   //---------------------------------------------------------------------------
   //| END EDIT VISIBILITY RELATED FUNCTIONS
   //---------------------------------------------------------------------------
-
-
 }

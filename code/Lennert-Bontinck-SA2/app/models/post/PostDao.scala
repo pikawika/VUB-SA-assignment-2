@@ -62,7 +62,7 @@ class PostDao @Inject()(visibilityDao: VisibilityDao) {
     val post_with_time = Post(id, post.author, LocalDateTime.now(), post.description, post.image_filename)
 
     // Make new visibility object with correct ID
-    val visibility_to_add = Visibility(id, visibility.visible_to_all, visibility.visible_to_usernames)
+    val visibility_to_add = Visibility(id, visibility.isVisibleToEveryone, visibility.listOfVisibleUsernames)
 
     // Add to post list
     posts = posts + post_with_time

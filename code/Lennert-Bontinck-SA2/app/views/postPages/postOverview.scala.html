@@ -4,44 +4,54 @@
 * is a bool specifying if the overview is sorted on likes.
 *@
 @import models.post.PostWithInfo
-@(title: String, postsWithInfo: List[PostWithInfo], sorted_on_likes: Boolean)(implicit session: Session)
+@(title: String, postsWithInfo: List[PostWithInfo], sortedOnLikes: Boolean)(implicit session: Session, request: MessagesRequestHeader)
 
 @main(title, session) {
     @defining(play.core.PlayVersion.current) { version =>
         <div class="overview">
-
-            <div class="post-list-item row">
-                <div class="row bb pb-20 mb-20">
-                    <div class="col-md-9">
-                        @if(sorted_on_likes) {
-                            <h2>Most liked posts</h2>
-                            <a class="unset-color" href="@routes.HomeController.showIndex()">
-                                Show me the most recent posts first
-                                <i aria-hidden="true" class="fas fa-long-arrow-alt-right"></i>
-                            </a>
-
-                        } else {
-                            <h2>Most recent posts</h2>
-                            <a class="unset-color" href="@routes.HomeController.showIndexSortedOnLikes()">
-                                Show me the most liked posts first
-                                <i aria-hidden="true" class="fas fa-long-arrow-alt-right"></i>
-                            </a>
-                        }
+            @request.flash.data.map { case (name, value) =>
+                @if(name == "error") {
+                    <div class="alert alert-danger row">
+                    @value
                     </div>
-                    <div class="col-md-3 bl-md post-comment-meta">
-                        <i class="far fa-images pink-color push-right-icon"></i>
-                        Showing @postsWithInfo.length posts
+                } else {
+                    <div class="alert alert-info row">
+                    @value
                     </div>
+                }
+            }
+        <div class="post-list-item row">
+            <div class="row bb pb-20 mb-20">
+                <div class="col-md-9">
+                @if(sortedOnLikes) {
+                    <h2>Most liked posts</h2>
+                    <a class="unset-color" href="@routes.HomeController.showIndex()">
+                        Show me the most recent posts first
+                        <i aria-hidden="true" class="fas fa-long-arrow-alt-right"></i>
+                    </a>
+
+                } else {
+                    <h2>Most recent posts</h2>
+                    <a class="unset-color" href="@routes.HomeController.showIndexSortedOnLikes()">
+                        Show me the most liked posts first
+                        <i aria-hidden="true" class="fas fa-long-arrow-alt-right"></i>
+                    </a>
+                }
                 </div>
-                <div>
-                    <p class="justify">
-                        Welcome to CarLovers, a social media platform where registered CarLovers can share their
-                        favourite car pictures. Comment and like others CarLovers posts to your hearts desire!
-                        You can view someone's profile by clicking on their name.
-                        Everyone is welcome, from old-timers to supercars. Spread love not hate ✌
-                    </p>
+                <div class="col-md-3 bl-md post-comment-meta">
+                    <i class="far fa-images pink-color push-right-icon"></i>
+                    Showing @postsWithInfo.length posts
                 </div>
             </div>
+            <div>
+                <p class="justify">
+                        Welcome to CarLovers, a social media platform where registered CarLovers can share their
+                    favourite car pictures. Comment and like others CarLovers posts to your hearts desire!
+                    You can view someone's profile by clicking on their name.
+                    Everyone is welcome, from old-timers to supercars. Spread love not hate ✌
+                </p>
+            </div>
+        </div>
 
             @for(postWithInfo <- postsWithInfo) {
                 @listItems.postListItem(postWithInfo, session)

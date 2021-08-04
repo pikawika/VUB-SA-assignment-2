@@ -9,9 +9,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * NOTE: This file is a modification of AuthenticatedUserAction as taken from the solutions of WPO session 7.
- * It allows for restricting MessagesAction to registered users only, handy places where AuthenticatedUserAction isn't usable.
+ * It allows for restricting MessagesAction to registered users only, handy where AuthenticatedUserAction isn't usable.
  */
-
 class AuthenticatedUserActionWithMessageRequest @Inject()(parser: BodyParsers.Default,  messagesApi: MessagesApi)(implicit ec: ExecutionContext)
   extends MessagesActionBuilderImpl(parser, messagesApi) {
 
@@ -22,7 +21,7 @@ class AuthenticatedUserActionWithMessageRequest @Inject()(parser: BodyParsers.De
         // If user is not logged in show login required page.
         Future.successful(Redirect(routes.HomeController.showLoginRequired()))
       case Some(_) =>
-        // Create MessagesRequest from request and API
+        // Create MessagesRequest from request and API as per native implementation
         val res: Future[Result] = block(new MessagesRequest[A](request, messagesApi))
         res
     }

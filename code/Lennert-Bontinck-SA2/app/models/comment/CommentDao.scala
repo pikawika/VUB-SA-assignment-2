@@ -26,12 +26,12 @@ class CommentDao @Inject()() {
   /**
    * Returns all comments of all posts sorted by the date they were added (oldest first).
    */
-  def findAll: List[Comment] = comments.toList.sortBy(_.date_added)
+  def findAll: List[Comment] = comments.toList.sortBy(_.dateAdded)
 
   /**
    * Returns all comments for a single post sorted by the date they were added (oldest first).
    */
-  def findForPost(post: Post): List[Comment] = comments.filter(_.post_id == post.id).toList.sortBy(_.date_added)
+  def findForPost(post: Post): List[Comment] = comments.filter(_.postId == post.id).toList.sortBy(_.dateAdded)
 
   /**
    * Adds comment to repository.
@@ -39,7 +39,7 @@ class CommentDao @Inject()() {
    */
   def addComment(comment: Comment): Unit = {
     // Make new comment to have exact time of comment placed
-    val comment_with_time = Comment(comment.post_id, comment.author, LocalDateTime.now(), comment.text)
+    val comment_with_time = Comment(comment.postId, comment.author, LocalDateTime.now(), comment.text)
     comments = comments + comment_with_time
   }
 
