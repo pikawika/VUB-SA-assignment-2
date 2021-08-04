@@ -2,6 +2,7 @@ package models.post
 
 import models.comment.CommentDao
 import models.like.LikeDao
+import models.visibility.VisibilityDao
 
 import javax.inject.Inject
 
@@ -10,15 +11,19 @@ import javax.inject.Inject
  * Since post with info objects are a combination of post, comment and like objects, this DAO uses those repositories.
  */
 @javax.inject.Singleton
-class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDao: LikeDao) {
+class PostWithInfoDao @Inject()(postDao: PostDao,
+                                commentDao: CommentDao,
+                                likeDao: LikeDao,
+                                visibilityDao: VisibilityDao) {
 
   /**
-   * Returns all posts with info sorted by the date they were added in reverse order (newest first).
+   * Returns all posts with info visible to the supplied username.
+   * Sorted by the date they were added in reverse order (newest first) per default.
    * Comments are sorted on date (oldest first).
    * Optional parameter limit_comments: Boolean specifying if all comments should be gathered or only first 3.
    * Optional parameter sort_on_likes: Boolean specifying if post should ne sorted on amount of likes instead.
    */
-  def findAll(limit_comments: Boolean = false, sort_on_likes: Boolean = false): List[PostWithInfo] = {
+  def findAll(viewing_username: String, limit_comments: Boolean = false, sort_on_likes: Boolean = false): List[PostWithInfo] = {
     // Get all posts (should already be ordered on newest first)
     val posts = postDao.findAll
 
@@ -27,16 +32,21 @@ class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDa
 
     // Loop over all posts and collect comments and likes, merge them into PostWithInfo objects and add them to set
     for (post <- posts) {
-      var comments = commentDao.findForPost(post).sortBy(_.date_added)
+      val visibility = visibilityDao.findForPost(post)
 
-      // If comments is limited, take first 3
-      if (limit_comments) {
-        comments = comments.take(3)
+      // Only include posts visible to viewing user
+      if (visibilityDao.userCanViewPost(post, viewing_username)) {
+        var comments = commentDao.findForPost(post).sortBy(_.date_added)
+
+        // If comments is limited, take first 3
+        if (limit_comments) {
+          comments = comments.take(3)
+        }
+
+        val likes = likeDao.findForPost(post)
+
+        postsWithInfo = postsWithInfo + PostWithInfo(post, comments, likes, visibility)
       }
-
-      val likes = likeDao.findForPost(post)
-
-      postsWithInfo = postsWithInfo + PostWithInfo(post, comments, likes)
     }
 
     // Sort list and return it
@@ -51,18 +61,18 @@ class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDa
 
   /**
    * Returns the post with info of a specific post ID.
-   * NOTE: this assumes the ID is valid, perform check first with isValidId method of PostDao!
+   * NOTE: this assumes the ID is valid and does not check visibility, perform those checks first!
    */
   def findWithId(post_id: Int): PostWithInfo = {
     val post = postDao.findWithId(post_id)
     val comments = commentDao.findForPost(post)
     val likes = likeDao.findForPost(post)
+    val visibility = visibilityDao.findForPost(post)
 
-    val postsWithInfo = PostWithInfo(post, comments, likes)
+    val postsWithInfo = PostWithInfo(post, comments, likes, visibility)
 
     postsWithInfo
   }
-
 
 
   /**
@@ -86,8 +96,9 @@ class PostWithInfoDao @Inject()(postDao: PostDao, commentDao: CommentDao, likeDa
       }
 
       val likes = likeDao.findForPost(post)
+      val visibility = visibilityDao.findForPost(post)
 
-      postsWithInfo = postsWithInfo + PostWithInfo(post, comments, likes)
+      postsWithInfo = postsWithInfo + PostWithInfo(post, comments, likes, visibility)
     }
 
     // Return list sorted on newest first

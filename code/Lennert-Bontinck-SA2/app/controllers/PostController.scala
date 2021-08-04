@@ -3,6 +3,7 @@ package controllers
 import models.comment.{Comment, CommentDao}
 import models.like.{Like, LikeDao}
 import models.post.{Post, PostDao, PostWithInfoDao}
+import models.visibility.VisibilityDao
 import play.api.data.Form
 import play.api.data.Forms.{localDateTime, mapping, nonEmptyText, number}
 import play.api.libs.Files
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class PostController @Inject()(cc: MessagesControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
                                authenticatedUserActionWithMessageRequest: AuthenticatedUserActionWithMessageRequest,
+                               visibilityDao: VisibilityDao,
                                postDao: PostDao,
                                commentDao: CommentDao,
                                postWithInfoDao: PostWithInfoDao,
@@ -33,8 +35,9 @@ class PostController @Inject()(cc: MessagesControllerComponents,
    * Create an Action to render the post page for a specific post ID.
    */
   def showPost(id: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
-    if (!postDao.isValidId(id)) {
-      // If ID is invalid go to home
+    val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+    if (!postDao.isValidId(id) || !visibilityDao.userCanViewPost(postDao.findWithId(id), username)) {
+      // ID invalid or no rights to view, show index
       Redirect(routes.HomeController.showIndex())
     } else {
       // Get post object
@@ -116,7 +119,8 @@ class PostController @Inject()(cc: MessagesControllerComponents,
       // If a valid post ID can be found display error on post page.
       // If no valid POST id is found; unexpected form data, perform default action of logging out and showing error.
       val post_id = formWithErrors.data.getOrElse("post_id", -1).toString.toIntOption.getOrElse(-1)
-      if (postDao.isValidId(post_id)) {
+      val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+      if (postDao.isValidId(post_id) && visibilityDao.userCanViewPost(postDao.findWithId(post_id), username)) {
         val postWithInfo = postWithInfoDao.findWithId(post_id)
         BadRequest(views.html.postPages.post("Commenting failed", postWithInfo, formWithErrors, commentPostUrl))
       } else {

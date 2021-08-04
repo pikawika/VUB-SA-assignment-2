@@ -23,7 +23,8 @@ class HomeController @Inject()(cc: ControllerComponents,
    * Only accessible to logged in users.
    */
   def showIndex(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    val posts = postWithInfoDao.findAll(limit_comments = true)
+    val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+    val posts = postWithInfoDao.findAll(username, limit_comments = true)
     Ok(views.html.postPages.postOverview("Home", posts, sorted_on_likes = false))
   }
 
@@ -33,7 +34,8 @@ class HomeController @Inject()(cc: ControllerComponents,
    * Only accessible to logged in users.
    */
   def showIndexSortedOnLikes(): Action[AnyContent] = authenticatedUserAction { implicit request: Request[AnyContent] =>
-    val posts = postWithInfoDao.findAll(limit_comments = true, sort_on_likes = true)
+    val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+    val posts = postWithInfoDao.findAll(username, limit_comments = true, sort_on_likes = true)
     Ok(views.html.postPages.postOverview("Home", posts, sorted_on_likes = true))
   }
 
