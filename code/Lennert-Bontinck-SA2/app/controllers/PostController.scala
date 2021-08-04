@@ -3,7 +3,7 @@ package controllers
 import models.comment.{Comment, CommentDao}
 import models.like.{Like, LikeDao}
 import models.post.{Post, PostDao, PostWithInfoDao}
-import models.visibility.VisibilityDao
+import models.visibility.{Visibility, VisibilityDao}
 import play.api.data.Form
 import play.api.data.Forms.{localDateTime, mapping, nonEmptyText, number}
 import play.api.libs.Files
@@ -221,8 +221,12 @@ class PostController @Inject()(cc: MessagesControllerComponents,
             // Create right post object to add
             val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
 
+            // Create right visibility object
+            // todo
+            val visibility = Visibility(post.id, visible_to_all = true, List())
+
             // Add the post and retrieve its id
-            val post_id = postDao.addPost(post_to_add)
+            val post_id = postDao.addPost(post_to_add, visibility)
 
             // Display post
             Redirect(routes.PostController.showPost(post_id))

@@ -1,6 +1,7 @@
 package models.post
 
 import models.post
+import models.visibility.{Visibility, VisibilityDao}
 
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -10,7 +11,7 @@ import javax.inject.Inject
  * NOTE: no DB is used, per required of the assignment, this is very naive IRL (no hashing, GDPR restrictions,...).
  */
 @javax.inject.Singleton
-class PostDao @Inject()() {
+class PostDao @Inject()(visibilityDao: VisibilityDao) {
 
   /**
    * Posts variable: the set of posts is kept in memory and has some initial data.
@@ -43,18 +44,24 @@ class PostDao @Inject()() {
   }
 
   /**
-   * Adds post to repository and returns its ID.
-   * This will make a new post object with correct ID and time.
+   * Adds post and visibility to post and visibility repository and returns its ID.
+   * This will make a new post and visibility object with correct ID and time.
    */
-  def addPost(post: Post): Int = {
+  def addPost(post: Post, visibility: Visibility): Int = {
     // Determine new ID by adding 1 to current highest
     val id = posts.maxBy(_.id).id + 1
 
     // Make new post object with correct time
     val post_with_time = Post(id, post.author, LocalDateTime.now(), post.description, post.image_filename)
 
-    // Add to list
+    // Make new visibility object with correct ID
+    val visibility_to_add = Visibility(id, visibility.visible_to_all, visibility.visible_to_usernames)
+
+    // Add to post list
     posts = posts + post_with_time
+
+    // Add visibility
+    visibilityDao.addVisibility(visibility_to_add)
 
     // Return ID to caller
     id
