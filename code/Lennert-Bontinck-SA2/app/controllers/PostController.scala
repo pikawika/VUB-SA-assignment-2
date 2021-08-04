@@ -282,7 +282,6 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   //---------------------------------------------------------------------------
   //| END POST ADDING RELATED FUNCTIONS
   //---------------------------------------------------------------------------
-  //---------------------------------------------------------------------------
   //| START POST DELETE RELATED FUNCTIONS
   //---------------------------------------------------------------------------
 
@@ -314,6 +313,72 @@ class PostController @Inject()(cc: MessagesControllerComponents,
 
   //---------------------------------------------------------------------------
   //| END POST DELETE RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+  //| START EDIT VISIBILITY RELATED FUNCTIONS
+  //---------------------------------------------------------------------------
+
+
+  /**
+   * Create an Action to render the add post page.
+   */
+  def showEditVisibility(id: Int): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
+    val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+
+    if (postDao.isAuthor(id, username)) {
+      val allUsernames = userDao.findAllOtherUsers(username)
+      val postWithInfo = postWithInfoDao.findWithId(id)
+      Ok(views.html.postPages.editVisibility("Edit visibility of post", postWithInfo, editPostVisibilityUrl, allUsernames))
+    } else {
+      // Unexpected form data, perform default action of logging out and showing error.
+      Redirect(routes.AuthenticatedUserController
+        .logoutWithError("There was something wrong with editing your post. Please try again after logging in."))
+    }
+  }
+
+  /**
+   * The submit URL of the edit post visibility form.
+   */
+  //todo
+  private val editPostVisibilityUrl = routes.PostController.processEditVisibilityAttempt()
+
+  def processEditVisibilityAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = authenticatedUserActionWithMessageRequest(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
+    val visibility_settings_ok = request.body.dataParts.contains("visibility") && request.body.dataParts.contains("post_id")
+
+    if (visibility_settings_ok) {
+      // Check if valid deleter is author of post
+      val edit_author = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+      val post_id = request.body.dataParts("post_id").toList.head.toInt
+      val valid_author = postDao.isAuthor(post_id, edit_author)
+
+      if (valid_author) {
+        // Make new visibility object
+        val visible_to_all = request.body.dataParts("visibility").contains("all")
+        val visible_to_users = request.body.dataParts.getOrElse("shareWithUsernames", List()).toList
+        val newVisibilities = Visibility(post_id, visible_to_all, visible_to_users)
+        val post = postDao.findWithId(post_id)
+
+        // Edit visibility
+        visibilityDao.editVisibility(post, newVisibilities)
+
+        // Show post
+        Redirect(routes.PostController.showPost(post_id))
+          .flashing("info" -> "Visibility has been changed!")
+      } else {
+        // Unexpected form data, perform default action of logging out and showing error.
+        Redirect(routes.AuthenticatedUserController
+          .logoutWithError("There was something wrong with deleting your post. Please try again after logging in."))
+      }
+    } else {
+      // Unexpected form data, perform default action of logging out and showing error.
+      Redirect(routes.AuthenticatedUserController
+        .logoutWithError("There was something wrong with deleting your post. Please try again after logging in."))
+    }
+  }
+
+
+
+  //---------------------------------------------------------------------------
+  //| END EDIT VISIBILITY RELATED FUNCTIONS
   //---------------------------------------------------------------------------
 
 

@@ -1,6 +1,6 @@
 package models.visibility
 
-import models.post.Post
+import models.post.{Post, PostDao}
 
 import javax.inject.Inject
 
@@ -32,6 +32,16 @@ class VisibilityDao @Inject()() {
    */
   def addVisibility(visibility: Visibility): Unit = {
     visibilities = visibilities + visibility
+  }
+
+  /**
+   * Edits visibility of item in repository.
+   * NOTE: this assumes the ID is valid, perform check first with isValidId method of PostDao!
+   */
+  def editVisibility(post: Post, newVisibility: Visibility): Unit = {
+    val old_visibility = findForPost(post)
+    visibilities = visibilities - old_visibility
+    visibilities = visibilities + newVisibility
   }
 
   /**

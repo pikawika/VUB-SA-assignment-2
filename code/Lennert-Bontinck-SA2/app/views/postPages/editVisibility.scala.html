@@ -1,0 +1,81 @@
+@*
+* This template provides the edit visibility of post page.
+* The first arguments specifies the web title to use, the second the post which is edited
+* The third a postUrl of the edit visibility form and the last a list of all usernames which the user can share with.
+*@
+@import models.post.PostWithInfo
+@(welcome: String, postWithInfo: PostWithInfo, editVisibilityFormPostUrl: Call, sharableUsernames: List[String], issueWithVisibility: Boolean = false)(implicit session: Session, request: MessagesRequestHeader)
+
+@main(welcome, session) {
+    @defining(play.core.PlayVersion.current) { version =>
+
+        <div class="limiter">
+            <div class="container-login100">
+                <div class="wrap-login100">
+                    <div class="login100-pic">
+                        <img alt="CarLovers logo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
+                    </div>
+
+                    <div class="login100-form">
+                        <span class="login100-form-title">
+                            Edit visibility of post
+                        </span>
+
+                        @request.flash.data.map { case (name, value) =>
+                            @if(name == "error") {
+                                <div class="alert alert-danger">
+                                @value
+                                </div>
+                            } else {
+                                <div class="alert alert-info">
+                                @value
+                                </div>
+                            }
+                        }
+
+                        @if(issueWithVisibility) {
+                            <div class="alert alert-danger">
+                                There was an issue with your visibility settings.
+                            </div>
+                        }
+
+                        @helper.form(editVisibilityFormPostUrl, Symbol("enctype") -> "multipart/form-data", Symbol("id") -> "edit-visibility-form") {
+                            @helper.CSRF.formField
+
+                            <input class="hidden" name="post_id" value="@postWithInfo.post.id">
+
+                            <div class="mb-20">
+                                <h5>My post may be visible to</h5>
+                                <div>
+                                    <input type="radio" id="all" name="visibility" value="all"
+                                    @if(postWithInfo.visibility.visible_to_all) {checked}>
+                                    <label for="all">Everyone</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="specific" name="visibility" value="specific"
+                                    @if(!postWithInfo.visibility.visible_to_all) {checked}>
+                                    <label for="specific">A specific list of users specified below</label>
+                                </div>
+                                <h5>Only show posts to:</h5>
+                                @for(sharableUsername <- sharableUsernames) {
+                                    <div class="col-md-6">
+                                        <input name="shareWithUsernames" type="checkbox" id="@sharableUsername" value="@sharableUsername"
+                                        @if(postWithInfo.visibility.visible_to_usernames.contains(sharableUsername)) {checked}>
+                                        <label class="goodlabel" for="@sharableUsername">@sharableUsername</label>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="container-login100-form-btn">
+                                <button class="login100-form-btn" type="submit" value="Login">
+                                    Edit visibility
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    }
+}
