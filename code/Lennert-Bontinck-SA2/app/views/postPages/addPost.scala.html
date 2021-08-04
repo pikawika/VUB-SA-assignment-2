@@ -3,7 +3,7 @@
 * The first arguments specifies the web title to use, the second the add post form and the last the postUrl of the add post form.
 *@
 @import models.post.Post
-@(welcome: String, addPostForm: Form[Post], addPostFormPostUrl: Call, issueWithFile: Boolean = false)(implicit session: Session, request: MessagesRequestHeader)
+@(welcome: String, addPostForm: Form[Post], addPostFormPostUrl: Call, sharableUsernames: List[String], issueWithFile: Boolean = false, issueWithVisibility: Boolean = false)(implicit session: Session, request: MessagesRequestHeader)
 @import inputs.inputTextWithIcon
 @import helper.FieldConstructor
 @implicitField = @{
@@ -39,7 +39,13 @@
 
                         @if(issueWithFile) {
                             <div class="alert alert-danger">
-                            Please select exactly one supported file.
+                                Please select exactly one supported file.
+                            </div>
+                        }
+
+                        @if(issueWithVisibility) {
+                            <div class="alert alert-danger">
+                                There was an issue with your visibility settings.
                             </div>
                         }
 
@@ -83,11 +89,31 @@
                                 Symbol("class") -> "input100"
                             )
 
-                            <label class="add-post-form-btn">
+                            <label class="add-post-form-btn mt-20 mb-20">
                                 <a id="thumbTekst"> Select one JPG/JPEG image
                                 </a>
                                 <input accept=".jpg, .jpeg" id="thumbToUpload" name="image" style="display: none;" type="file">
                             </label>
+
+                            <div class="mb-20">
+                                <h5>My post may be visible to</h5>
+                                <div>
+                                    <input type="radio" id="all" name="visibility" value="all"
+                                    checked>
+                                    <label for="all">Everyone</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="specific" name="visibility" value="specific">
+                                    <label for="specific">A specific list of users specified below</label>
+                                </div>
+                                <h5>Only show posts to:</h5>
+                                @for(sharableUsername <- sharableUsernames) {
+                                    <div class="col-md-6">
+                                        <input name="shareWithUsernames" type="checkbox" id="@sharableUsername" value="@sharableUsername">
+                                        <label class="goodlabel" for="@sharableUsername">@sharableUsername</label>
+                                    </div>
+                                }
+                            </div>
 
                             <div class="container-login100-form-btn">
                                 <button class="login100-form-btn" type="submit" value="Login">

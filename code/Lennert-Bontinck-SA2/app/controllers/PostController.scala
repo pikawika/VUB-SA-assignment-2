@@ -3,6 +3,7 @@ package controllers
 import models.comment.{Comment, CommentDao}
 import models.like.{Like, LikeDao}
 import models.post.{Post, PostDao, PostWithInfoDao}
+import models.user.UserDao
 import models.visibility.{Visibility, VisibilityDao}
 import play.api.data.Form
 import play.api.data.Forms.{localDateTime, mapping, nonEmptyText, number}
@@ -21,6 +22,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
                                authenticatedUserAction: AuthenticatedUserAction,
                                authenticatedUserActionWithMessageRequest: AuthenticatedUserActionWithMessageRequest,
                                visibilityDao: VisibilityDao,
+                               userDao: UserDao,
                                postDao: PostDao,
                                commentDao: CommentDao,
                                postWithInfoDao: PostWithInfoDao,
@@ -165,7 +167,8 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   def showAddPost(): Action[AnyContent] = authenticatedUserActionWithMessageRequest { implicit request: MessagesRequest[AnyContent] =>
     val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
     val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), "", "TempFileName"))
-    Ok(views.html.postPages.addPost("Add post", filledAddPostForm, addPostUrl))
+    val allUsernames = userDao.findAllOtherUsers(username)
+    Ok(views.html.postPages.addPost("Add post", filledAddPostForm, addPostUrl, allUsernames))
   }
 
   /**
@@ -192,7 +195,9 @@ class PostController @Inject()(cc: MessagesControllerComponents,
   def processAddPostAttempt(): Action[MultipartFormData[play.api.libs.Files.TemporaryFile]] = authenticatedUserActionWithMessageRequest(parse.multipartFormData) { implicit request: MessagesRequest[MultipartFormData[Files.TemporaryFile]] =>
     val errorFunction = { formWithErrors: Form[Post] =>
       // Issues with form itself (validation and/or binding issues).
-      BadRequest(views.html.postPages.addPost("Adding post failed", formWithErrors, addPostUrl))
+      val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+      val allUsernames = userDao.findAllOtherUsers(username)
+      BadRequest(views.html.postPages.addPost("Adding post failed", formWithErrors, addPostUrl, allUsernames))
     }
     val successFunction = { post: Post =>
       // Form validation and binding is correct, check correct user
@@ -207,36 +212,50 @@ class PostController @Inject()(cc: MessagesControllerComponents,
           val extension = image.filename.split("\\.").last
 
           if (extension == "jpeg" || extension == "jpg") {
-            // Create unique file name
-            val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
-            val filename = username + "-" + System.currentTimeMillis().toString + "." + extension
 
-            // Copy file to right folder
-            image.ref.copyTo(Paths.get(s"public/images/posts/$filename"), replace = true)
+            // Check for correct visibility settings
+            val visibility_settings_ok = request.body.dataParts.contains("visibility")
 
-            // Wait for some time so that copy is performed
-            // It seems like there is no "onComplete" like procedures possible on the copyTo function.
-            Thread.sleep(1000)
+            if (visibility_settings_ok) {
+              // Create unique file name
+              val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+              val filename = username + "-" + System.currentTimeMillis().toString + "." + extension
 
-            // Create right post object to add
-            val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
+              // Copy file to right folder
+              image.ref.copyTo(Paths.get(s"public/images/posts/$filename"), replace = true)
 
-            // Create right visibility object
-            // todo
-            val visibility = Visibility(post.id, visible_to_all = true, List())
+              // Wait for some time so that copy is performed
+              // It seems like there is no "onComplete" like procedures possible on the copyTo function.
+              Thread.sleep(1000)
 
-            // Add the post and retrieve its id
-            val post_id = postDao.addPost(post_to_add, visibility)
+              // Create right post object to add
+              val post_to_add = Post(post.id, username, LocalDateTime.now(), post.description, filename)
 
-            // Display post
-            Redirect(routes.PostController.showPost(post_id))
-              .flashing("info" -> "Your post was created. It might take some time for your image to display, try refreshing if you can't see it.")
+              // Create right visibility object
+              val visible_to_all = request.body.dataParts("visibility").contains("all")
+              val visible_to_users = request.body.dataParts.getOrElse("shareWithUsernames", List()).toList
+              val visibility = Visibility(post.id, visible_to_all = visible_to_all, visible_to_users)
+
+              // Add the post and retrieve its id
+              val post_id = postDao.addPost(post_to_add, visibility)
+
+              // Display post
+              Redirect(routes.PostController.showPost(post_id))
+                .flashing("info" -> "Your post was created. It might take some time for your image to display, try refreshing if you can't see it.")
+            } else {
+              // visibility not okay
+              val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
+              val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "WrongVisibility"))
+              val allUsernames = userDao.findAllOtherUsers(username)
+              BadRequest(views.html.postPages.addPost("Wrong visibility - add post", filledAddPostForm, addPostUrl, allUsernames, issueWithVisibility = true))
+            }
 
           } else {
             // File extension not okay
             val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
             val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "WrongFileExtension"))
-            BadRequest(views.html.postPages.addPost("Wrong file - add post", filledAddPostForm, addPostUrl, issueWithFile = true))
+            val allUsernames = userDao.findAllOtherUsers(username)
+            BadRequest(views.html.postPages.addPost("Wrong file - add post", filledAddPostForm, addPostUrl, allUsernames, issueWithFile = true))
           }
 
 
@@ -244,7 +263,8 @@ class PostController @Inject()(cc: MessagesControllerComponents,
           // File was not provided
           val username = request.session.get(models.Global.SESSION_USERNAME_KEY).get
           val filledAddPostForm = addPostForm.fill(Post(-1, username, LocalDateTime.now(), post.description, "NonProvidedFile"))
-          BadRequest(views.html.postPages.addPost("Missing file - add post", filledAddPostForm, addPostUrl, issueWithFile = true))
+          val allUsernames = userDao.findAllOtherUsers(username)
+          BadRequest(views.html.postPages.addPost("Missing file - add post", filledAddPostForm, addPostUrl, allUsernames, issueWithFile = true))
         }
 
       } else {

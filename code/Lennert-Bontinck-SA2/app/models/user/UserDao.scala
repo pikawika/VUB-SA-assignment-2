@@ -46,6 +46,11 @@ class UserDao @Inject()() {
         }
     }
 
+    /**
+     * Returns all usernames excepts from supplied current user sorted alphabetically.
+     */
+    def findAllOtherUsers(currentUser: String): List[String] = users.toList.sortBy(_.username).map(_.username).filter(_ != currentUser)
+
 }
 
 

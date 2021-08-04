@@ -38,6 +38,10 @@ a, a * {
     margin-bottom: 20px;
 }
 
+.mt-20 {
+    margin-top: 20px;
+}
+
 .mw-100 {
     max-width: 100%;
 }
