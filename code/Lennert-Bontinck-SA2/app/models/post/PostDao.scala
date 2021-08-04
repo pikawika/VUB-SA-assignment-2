@@ -19,6 +19,7 @@ class PostDao @Inject()() {
     post.Post(1, "SnellenEddy", LocalDateTime.of(2021, 7, 20, 20, 30), "The new electric 208, it's fast! I also add this very long text to show overflow doesn't occur. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc mattis ultrices enim sit amet euismod. Ut eget arcu tincidunt, ullamcorper neque eget, elementum mi. Sed non turpis maximus, vulputate dui a, facilisis purus. In finibus ante congue, tempor augue in, malesuada odio. Donec suscipit varius enim, non interdum nisl consectetur quis. Vestibulum venenatis neque at interdum tristique. Morbi nec scelerisque diam.", "electric208.jpeg"),
     post.Post(2, "Lennert", LocalDateTime.of(2021, 7, 21, 19, 30), "My awesome 106 GTi, finally finished after more then 3 years of revision!", "106gti.jpeg"),
     post.Post(3, "Lennert", LocalDateTime.of(2021, 7, 22, 19, 30), "Since you guys seem to like my previous car picture, I present to you: my clean interior! I also have an instagram: @blackguette.", "interior.jpeg"),
+    post.Post(4, "JohnyBravo", LocalDateTime.of(2021, 7, 23, 19, 30), "Only my true friend SnellenEddy may see this post.", "duveltruck.jpeg"),
   )
 
   /**
