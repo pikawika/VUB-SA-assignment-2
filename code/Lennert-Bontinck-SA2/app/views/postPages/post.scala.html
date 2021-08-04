@@ -29,7 +29,7 @@
                 <div class="row bb pb-20">
                     <div class="col-md-9">
                         <h1>Post by <a class="unset-color" href="@routes.UserController.showProfile(postWithInfo.post.author)">@postWithInfo.post.author</a></h1>
-                        <small>Posted on: @postWithInfo.post.date_added.toString</small>
+                        <small>Posted on: @postWithInfo.post.dateAdded.toString</small>
                     </div>
                     <div class="col-md-3 bl-md">
                     @forms.postLikeButtonAndCount(postWithInfo, session)
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="single-post-image">
-                    <img alt="Post photo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
+                    <img alt="Post photo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.imageFilename)">
                 </div>
 
                 <div class="single-post-description">

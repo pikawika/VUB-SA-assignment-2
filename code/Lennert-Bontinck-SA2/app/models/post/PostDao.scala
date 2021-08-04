@@ -2,7 +2,6 @@ package models.post
 
 import models.post
 import models.visibility.{Visibility, VisibilityDao}
-
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -26,11 +25,11 @@ class PostDao @Inject()(visibilityDao: VisibilityDao) {
   /**
    * Returns all posts sorted by the date they were added in reverse order (newest first).
    */
-  def findAll: List[Post] = posts.toList.sortBy(_.date_added).reverse
+  def findAll: List[Post] = posts.toList.sortBy(_.dateAdded).reverse
 
   /**
    * Returns the post with a specific ID.
-   * NOTE: this assumes the ID is valid, perform check first with isValidId method!
+   * NOTE: this assumes the ID is valid, perform check first with isValidId method from PostDao!
    */
   def findWithId(id: Int): Post = {
     posts.find(_.id == id).get
@@ -51,7 +50,7 @@ class PostDao @Inject()(visibilityDao: VisibilityDao) {
   }
 
   /**
-   * Adds post and visibility to post and visibility repository and returns its ID.
+   * Adds post and its visibility to post and visibility repository and returns its ID.
    * This will make a new post and visibility object with correct ID and time.
    */
   def addPost(post: Post, visibility: Visibility): Int = {
@@ -59,26 +58,26 @@ class PostDao @Inject()(visibilityDao: VisibilityDao) {
     val id = posts.maxBy(_.id).id + 1
 
     // Make new post object with correct time
-    val post_with_time = Post(id, post.author, LocalDateTime.now(), post.description, post.image_filename)
+    val postWithCorrectTime = Post(id, post.author, LocalDateTime.now(), post.description, post.imageFilename)
 
     // Make new visibility object with correct ID
-    val visibility_to_add = Visibility(id, visibility.isVisibleToEveryone, visibility.listOfVisibleUsernames)
+    val visibilityWithCorrectId = Visibility(id, visibility.isVisibleToEveryone, visibility.listOfVisibleUsernames)
 
     // Add to post list
-    posts = posts + post_with_time
+    posts = posts + postWithCorrectTime
 
     // Add visibility
-    visibilityDao.addVisibility(visibility_to_add)
+    visibilityDao.addVisibility(visibilityWithCorrectId)
 
     // Return ID to caller
     id
   }
 
   /**
-   * Returns all posts from user sorted by the date they were added in reverse order (newest first) from a specific user.
+   * Returns all posts from a given username sorted by the date they were added in reverse order (newest first).
    * NOTE: this assumes the username is valid, perform check first with uniqueUsername method of UserDao!
    */
-  def findFromUser(username: String): List[Post] = posts.filter(_.author == username).toList.sortBy(_.date_added).reverse
+  def findFromUser(username: String): List[Post] = posts.filter(_.author == username).toList.sortBy(_.dateAdded).reverse
 
   /**
    * Deletes the passed post object.

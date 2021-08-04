@@ -7,6 +7,6 @@ import java.time.LocalDateTime
  */
 case class Post(id: Int,
                 author: String,
-                date_added: LocalDateTime,
+                dateAdded: LocalDateTime,
                 description: String,
-                image_filename: String)
+                imageFilename: String)

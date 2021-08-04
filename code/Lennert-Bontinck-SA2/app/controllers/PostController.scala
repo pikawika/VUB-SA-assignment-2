@@ -297,7 +297,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
     if (isAuthorOfPostToDelete) {
       // Get post and delete it
       val post = postDao.findWithId(postId)
-      postDao.deletePost(post)
+      postWithInfoDao.deletePostAndInfo(post)
 
       // Go to profile page after deletion
       Redirect(routes.UserController.showProfile(deleter))

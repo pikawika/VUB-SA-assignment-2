@@ -14,14 +14,14 @@
         <p class="text-justify post-list-item-description">
         @postWithInfo.post.description
         </p>
-        <small>Posted on: @postWithInfo.post.date_added.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))</small>
+        <small>Posted on: @postWithInfo.post.dateAdded.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))</small>
 
         @postPages.postEditItems(postWithInfo, session)
 
     </div>
     <div class="col-md-6 post-list-item-photo">
         <a title="Read more" href="@routes.PostController.showPost(postWithInfo.post.id)">
-            <img alt="Post photo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.image_filename)">
+            <img alt="Post photo" src="@routes.Assets.versioned("images/posts/" + postWithInfo.post.imageFilename)">
         </a>
     </div>
     <div class="col-md-3">

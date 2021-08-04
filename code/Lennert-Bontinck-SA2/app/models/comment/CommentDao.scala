@@ -1,7 +1,6 @@
 package models.comment
 
 import models.post.Post
-
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -39,8 +38,15 @@ class CommentDao @Inject()() {
    */
   def addComment(comment: Comment): Unit = {
     // Make new comment to have exact time of comment placed
-    val comment_with_time = Comment(comment.postId, comment.author, LocalDateTime.now(), comment.text)
-    comments = comments + comment_with_time
+    val commentWithCreationTime = Comment(comment.postId, comment.author, LocalDateTime.now(), comment.text)
+    comments = comments + commentWithCreationTime
+  }
+
+  /**
+   * Deletes all comments for given post.
+   */
+  def deleteCommentsForPost(post: Post): Unit = {
+    comments = comments.filter(_.postId != post.id)
   }
 
 }

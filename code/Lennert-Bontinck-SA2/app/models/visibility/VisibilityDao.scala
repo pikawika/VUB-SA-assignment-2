@@ -28,7 +28,7 @@ class VisibilityDao @Inject()() {
   def findForPost(post: Post): Visibility = visibilities.find(_.postId == post.id).get
 
   /**
-   * Adds visibility to repository.
+   * Adds visibility object to repository.
    */
   def addVisibility(visibility: Visibility): Unit = {
     visibilities = visibilities + visibility
@@ -39,18 +39,25 @@ class VisibilityDao @Inject()() {
    * NOTE: this assumes the ID is valid, perform check first with isValidId method of PostDao!
    */
   def editVisibility(post: Post, newVisibility: Visibility): Unit = {
-    val old_visibility = findForPost(post)
-    visibilities = visibilities - old_visibility
+    val oldVisibility = findForPost(post)
+    visibilities = visibilities - oldVisibility
     visibilities = visibilities + newVisibility
   }
 
   /**
-   * Check if post is visible to specified user.
+   * Check if post is visible to a specified user.
    */
-  def userCanViewPost(post: Post, viewing_username: String): Boolean = {
+  def userCanViewPost(post: Post, viewingUsername: String): Boolean = {
     val visibility = findForPost(post)
 
-    post.author == viewing_username || visibility.isVisibleToEveryone || visibility.listOfVisibleUsernames.contains(viewing_username)
+    post.author == viewingUsername || visibility.isVisibleToEveryone || visibility.listOfVisibleUsernames.contains(viewingUsername)
+  }
+
+  /**
+   * Deletes all visibility objects for given post.
+   */
+  def deleteVisibilityForPost(post: Post): Unit = {
+    visibilities = visibilities.filter(_.postId != post.id)
   }
 }
 

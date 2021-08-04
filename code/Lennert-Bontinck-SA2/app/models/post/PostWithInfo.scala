@@ -5,7 +5,7 @@ import models.like.Like
 import models.visibility.Visibility
 
 /**
- * Simple case class to represent a post with extra info: comments and likes.
+ * Simple case class to represent a post with extra info: comments, likes and visibility.
  */
 case class PostWithInfo(post: Post,
                         comments: List[Comment],

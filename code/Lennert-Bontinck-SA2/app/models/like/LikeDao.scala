@@ -1,7 +1,6 @@
 package models.like
 
 import models.post.Post
-
 import javax.inject.Inject
 
 /**
@@ -28,7 +27,7 @@ class LikeDao @Inject()() {
   /**
    * Returns all likes for a single post.
    */
-  def findForPost(post: Post): List[Like] = likes.filter(_.post_id == post.id).toList
+  def findForPost(post: Post): List[Like] = likes.filter(_.postId == post.id).toList
 
   /**
    * Toggles passed like object: adds or removes it.
@@ -43,6 +42,13 @@ class LikeDao @Inject()() {
 
     // Return if user liked or not
     likes.contains(like)
+  }
+
+  /**
+   * Deletes all likes for given post.
+   */
+  def deleteLikesForPost(post: Post): Unit = {
+    likes = likes.filter(_.postId != post.id)
   }
 
 }
