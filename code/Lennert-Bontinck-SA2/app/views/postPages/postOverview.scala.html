@@ -1,7 +1,5 @@
 @*
 * This template provides a template for a page giving an overview of the posts.
-* The first arguments specifies the web title to use, the second is a list of PostWithInfo objects to display, the third
-* is a bool specifying if the overview is sorted on likes.
 *@
 @import models.post.PostWithInfo
 @(title: String, postsWithInfo: List[PostWithInfo], sortedOnLikes: Boolean)(implicit session: Session, request: MessagesRequestHeader)

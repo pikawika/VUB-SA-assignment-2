@@ -1,7 +1,5 @@
 @*
 * This template provides the edit visibility of post page.
-* The first arguments specifies the web title to use, the second the post which is edited
-* The third a postUrl of the edit visibility form and the last a list of all usernames which the user can share with.
 *@
 @import models.post.PostWithInfo
 @(welcome: String, postWithInfo: PostWithInfo, editVisibilityFormPostUrl: Call, sharableUsernames: List[String], issueWithVisibility: Boolean = false)(implicit session: Session, request: MessagesRequestHeader)

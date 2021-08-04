@@ -1,6 +1,7 @@
 @*
-* This template provides a simple comment icon and amount HTML for a PostWithInfo item.
-* Expects a PostWithInfo for which comment icon and amount should be displayed and session to have access to user cookies.
+* This template provides a simple set of buttons for a post edits options
+* Expects a PostWithInfo for which edit information should be shown if user from session is author.
+* Should not be used as "standalone" page.
 *@
 @import models.post.PostWithInfo
 @(postWithInfo: PostWithInfo, session: Session)

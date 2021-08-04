@@ -1,7 +1,5 @@
 @*
 * This template provides a template for a page giving an overview of the posts of a user.
-* The first arguments specifies the web title to use, the second is a list of PostWithInfo objects to display,
-* the third is the username of the profile.
 *@
 @import models.post.PostWithInfo
 @(title: String, postsWithInfo: List[PostWithInfo], username: String)(implicit session: Session, request: MessagesRequestHeader)

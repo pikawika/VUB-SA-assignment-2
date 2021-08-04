@@ -1,6 +1,5 @@
 @*
 * This template provides the add post page.
-* The first arguments specifies the web title to use, the second the add post form and the last the postUrl of the add post form.
 *@
 @import models.post.Post
 @(welcome: String, addPostForm: Form[Post], addPostFormPostUrl: Call, sharableUsernames: List[String], issueWithFile: Boolean = false, issueWithVisibility: Boolean = false)(implicit session: Session, request: MessagesRequestHeader)
