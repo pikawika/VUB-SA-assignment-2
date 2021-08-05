@@ -211,7 +211,7 @@ class PostController @Inject()(cc: MessagesControllerComponents,
         val files: Option[MultipartFormData.FilePart[Files.TemporaryFile]] = request.body.file("image")
         files.map { image =>
           // Check for right extension
-          val extension = image.filename.split("\\.").last
+          val extension = image.filename.split("\\.").last.toLowerCase
           if (extension == "jpeg" || extension == "jpg") {
             // Check for correct visibility settings of form
             val correctVisibilitySettingsSupplied = request.body.dataParts.contains("visibility")
